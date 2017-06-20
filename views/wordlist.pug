@@ -1,0 +1,21 @@
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js")
+    script(src="/javascripts/main.js")
+  body
+    h1= message
+    input#search(type="search", placeholder="search for a word")
+    div#results
+    div
+        table
+            thead
+                tr: th Words
+            tbody
+                each word in wordlist
+                    tr
+                        td= word.konkani_word
+                        td= word.english_word
+                
