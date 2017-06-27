@@ -7,6 +7,10 @@ html
     script(src="/javascripts/main.js")
   body
     h1= heading
-    input#search(type="search", placeholder="search for a word")
-    div#results
+    div.flex-container
+      div.row
+        div.flex-item
+          input#search(type="search", placeholder="start typing")
+        div.flex-item
+          div#results
                 
