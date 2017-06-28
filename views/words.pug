@@ -1,0 +1,20 @@
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js")
+    script(src="/javascripts/main.js")
+  body
+    h1= heading
+    h3 Meanings of #{query}
+    div
+        each word in words
+            span #{word.konkani_word} (#{word.part_of_speech})
+            br
+    h3 Related matches for #{query}
+    div
+        each word in related_words
+            span 
+                a(href='/words/'+ word.english_word.replace(/ /g, '+')) #{word.english_word}
+            br 
