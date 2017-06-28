@@ -1,5 +1,6 @@
 $(function(){
-    $('#search').on('keyup', function(e){
+    $(".keyboard").hide();
+    $('#search').on('propertychange change click keyup input paste focus', function(e){
         if ($(this).val() == "") {
             $('#results').html("");
         }
@@ -9,5 +10,8 @@ $(function(){
                 $('#results').html(data);
             });
         }
+    });
+    $("#keyboard-icon").click(function(e) {
+        $(".keyboard").toggle(100);
     });
 });

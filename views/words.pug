@@ -1,20 +1,29 @@
-doctype html
-html
-  head
-    title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
-    script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js")
-    script(src="/javascripts/main.js")
-  body
-    h1= heading
-    h3 Meanings of #{query}
-    div
-        each word in words
-            span #{word.konkani_word} (#{word.part_of_speech})
-            br
-    h3 Related matches for #{query}
-    div
-        each word in related_words
-            span 
-                a(href='/words/'+ word.english_word.replace(/ /g, '+')) #{word.english_word}
-            br 
+extends layout.pug
+
+block content
+    div.flex-container
+        div.flex-item
+            h3 Meanings of #{query}
+            div
+                ol
+                    each word in words
+                        if word.part_of_speech
+                            li #{word.translated_word} &nbsp; (#{word.part_of_speech}.)
+                        else
+                            li= word.translated_word
+        div.flex-item
+            h3 Related matches for #{query}
+            div
+                ol
+                    each word in related_words
+                        li 
+                            a(href='/words/'+ word.suggested_word.replace(/ /g, '+')) #{word.suggested_word} 
+        div.flex-item
+            if same_subcat_words[0]
+                h3 Other words in #{same_subcat_words[0].subcategory}
+            div
+                ol
+                    each word in same_subcat_words
+                        li
+                            if word.word_in_same_cat
+                                a(href='/words/'+ word.word_in_same_cat.replace(/ /g, '+')) #{word.word_in_same_cat} 

@@ -1,16 +1,24 @@
-doctype html
-html
-  head
-    title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
-    script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js")
-    script(src="/javascripts/main.js")
-  body
-    h1= heading
-    div.flex-container
-      div.row
-        div.flex-item
-          input#search(type="search", placeholder="start typing")
-        div.flex-item
+extends layout.pug
+
+block stylesheets
+  link(rel='stylesheet', href='/stylesheets/keyboard.css')
+
+block scripts
+  script(src="/javascripts/keyboard.js")
+
+block content
+  div.flex-container
+    div.row
+      div.center
+        div.cell
+          input#search(type="search", placeholder="start typing or click on keyboard icon")
+        div.cell
+          img(src="/keyboard_icon.svg", id="keyboard-icon")
+      div.center
+        include keyboard.html
+      div.center
+        div.cell
           div#results
+        div.cell
+          div.dummy
                 

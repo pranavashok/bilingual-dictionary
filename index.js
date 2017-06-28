@@ -88,25 +88,37 @@ app.param('word', function(req, res, next, word) {
 
 app.get("/words/:word", function(req, res) {
 	word = req.params.word.replace(/\+/g, ' ');
-	pool.query('(SELECT english_word, part_of_speech FROM wordlist WHERE english_word LIKE \'' + word 
-	+ ' %\') UNION ALL (SELECT english_word, part_of_speech FROM wordlist WHERE english_word LIKE \'% ' + word 
-	+ '\') UNION ALL (SELECT english_word, part_of_speech FROM wordlist WHERE english_word LIKE \'% ' + word + '%\')',
+	// If typing in English, then
+	if (word.search(/^([x00-\xFF]+)/) != -1) {
+		primary_column = "english_word";
+		secondary_column = "konkani_word";
+	} else {
+		primary_column = "konkani_word";
+		secondary_column = "english_word";
+	}
+	pool.query('(SELECT ' + primary_column + ' AS suggested_word, part_of_speech FROM wordlist WHERE ' + primary_column + ' LIKE \'' + word 
+	+ ' %\') UNION ALL (SELECT ' + primary_column + ' AS suggested_word, part_of_speech FROM wordlist WHERE ' + primary_column + ' LIKE \'% ' + word 
+	+ '\') UNION ALL (SELECT ' + primary_column + ' AS suggested_word, part_of_speech FROM wordlist WHERE ' + primary_column + ' LIKE \'% ' + word + '%\')',
 	'', function(suggest_err, suggest_result) {
 		if(suggest_err) {
 			return console.error('error running query', suggest_err);
 		}
-		pool.query('SELECT konkani_word, part_of_speech FROM wordlist WHERE english_word LIKE \'' + word 
+		pool.query('SELECT ' + secondary_column + ' AS translated_word, part_of_speech FROM wordlist WHERE ' + primary_column + ' LIKE \'' + word 
 			+ '\'', '', function(main_err, main_result) {
 			if(main_err) {
 				return console.error('error running query', main_err);
 			}
-			res.render('words', 
-				{ title: 'A Southern Konkani Vocabulary Collection', 
-				  heading: 'A Southern Konkani Vocabulary Collection', 
-				  query: word, 
-				  words: main_result.rows,
-				  related_words: suggest_result.rows
+			pool.query('SELECT ' + primary_column + ' AS word_in_same_cat, subcategory FROM wordlist WHERE subcategory IN (SELECT subcategory FROM wordlist WHERE ' 
+				+ primary_column + ' LIKE \'' + word + '\' LIMIT 1)', '', function(same_subcat_err, same_subcat_result) {
+				res.render('words', 
+					{ title: 'A Southern Konkani Vocabulary Collection', 
+				  	heading: 'A Southern Konkani Vocabulary Collection', 
+				  	query: word, 
+				  	words: main_result.rows,
+				  	related_words: suggest_result.rows,
+					same_subcat_words: same_subcat_result.rows
 				});
+			});
 		});
 	});
 });
