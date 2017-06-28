@@ -29,7 +29,7 @@ app.get('/searching', function(req, res) {
 	}
 	
 	data = "";
-	pool.query('SELECT ' + primary_column + ' as primary, ' + secondary_column + ' as secondary FROM wordlist WHERE ' 
+	pool.query('SELECT DISTINCT ' + primary_column + ' as primary FROM wordlist WHERE ' 
 				+ primary_column + ' LIKE \'' + search_param + '%\' ORDER BY ' + primary_column + '', "", function(err, result) {
 		if(err) {
 			return console.error('error running query', err);
@@ -47,7 +47,7 @@ app.get('/searching', function(req, res) {
 			data += "</tbody>";
 		}
 		data += "</table>";
-		pool.query('SELECT ' + primary_column + ' as primary, ' + secondary_column + ' as secondary FROM wordlist \
+		pool.query('SELECT DISTINCT ' + primary_column + ' as primary FROM wordlist \
 			WHERE ' + primary_column + ' LIKE concat(left(\'' + search_param + '\',1),\'%\') \
 			AND levenshtein(right(' + primary_column + ', -1), right(\'' + search_param + '\', -1)) BETWEEN 1 AND 2 \
 			ORDER BY ' + primary_column + ' LIMIT 8', "", function(err, result) {
@@ -100,7 +100,7 @@ app.get("/words/:word", function(req, res) {
 			if(main_err) {
 				return console.error('error running query', main_err);
 			}
-			res.render('word', 
+			res.render('words', 
 				{ title: 'A Southern Konkani Vocabulary Collection', 
 				  heading: 'A Southern Konkani Vocabulary Collection', 
 				  query: word, 
