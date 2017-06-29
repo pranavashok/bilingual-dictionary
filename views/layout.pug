@@ -1,12 +1,14 @@
 doctype html
 html
-  head
-    title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
-    block stylesheets
-    script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js")
-    script(src="/javascripts/main.js")
-    block scripts
-  body
-    h1 #[a(href="/") #{heading}]
-    block content
+    head
+        title= title
+        link(rel='stylesheet', href='/stylesheets/style.css')
+        link(rel='stylesheet', href='/stylesheets/keyboard.css')
+        block stylesheets
+        script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js")
+        script(src="/javascripts/main.js")
+        script(src="/javascripts/keyboard.js")
+        block scripts
+    body
+        h1 #[a(href="/") #{heading}]
+        block content

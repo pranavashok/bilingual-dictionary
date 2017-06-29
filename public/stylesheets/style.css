@@ -63,6 +63,7 @@ h3 {
 	justify-content:center;
 	align-items:center;
 	width:100%;
+  position: relative;
 }
 
 .clear {
@@ -73,6 +74,14 @@ h3 {
 
 .cell {
   margin-left: 10px;
+}
+
+.overlaybox {
+  z-index: 100;
+  position: relative;
+  background: rgb(250,250,250);
+  border: none;
+  border-radius: 20px;
 }
 
 .highlight {
@@ -109,14 +118,24 @@ h3 {
 
 #results {
   width: 500px;
-  margin-top: 0.6em;
   margin-right: 10px;
   border-radius: 10px;
   /* border: 1px solid skyblue; */
-  background: rgb(250,250,250);
+  background: solid rgb(250,250,250);
   max-width: 500px;
   overflow-y: auto;
   max-height: 50vh;
+  z-index: 10;
+}
+
+#specific-results {
+  position: absolute;
+  top: 30vh;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  z-index: 0;
 }
 
 .results-table {

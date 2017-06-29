@@ -1,23 +1,17 @@
-extends layout.pug
-
-block stylesheets
-  link(rel='stylesheet', href='/stylesheets/keyboard.css')
-
-block scripts
-  script(src="/javascripts/keyboard.js")
+extends layout.pug   
 
 block content
-  div.flex-container
-    div.row
-      div.center
-        div.cell
-          input#search(type="search", placeholder="start typing or click on keyboard icon")
-        div.cell
-          img(src="/keyboard_icon.svg", id="keyboard-icon")
-      div.center
-        include keyboard.html
-      div.center
-        div.cell
-          div#results
-        div.cell
-          div.dummy              
+    div.flex-container
+        div.row
+            div.center
+                div.cell
+                    input#search(type="search", placeholder="start typing or click on keyboard icon")
+                div.cell
+                    img(src="/keyboard_icon.svg", id="keyboard-icon")
+            div.center
+                include keyboard.html
+            div.center
+                div.cell
+                    div#results
+                div.cell
+                    div.dummy              

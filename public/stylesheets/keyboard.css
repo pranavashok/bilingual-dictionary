@@ -15,8 +15,9 @@ footer a:hover {
 .content {
 	flex: 1;
 }
-.Keyboard {
-	padding:1.2em;
+.keyboard {
+	display: relative;
+	z-index: 10;
 }
 .KeyboardRow {
 	text-align: center;
