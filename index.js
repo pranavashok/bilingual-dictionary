@@ -49,10 +49,20 @@ app.get('/searching', function(req, res) {
 			data += "</tbody>";
 		}
 		data += "</table>";
-		pool.query('SELECT DISTINCT ' + primary_column + ' as primary FROM wordlist \
+		/**
+		 * Suggested results
+		 * 1. Ignore first word and pick stuff which are edit distance close, order them alphabetically
+		 * 2. Pick words which contain query in any way (query %), (% query) or (% query %)
+		 */ 
+		pool.query('(SELECT DISTINCT ' + primary_column + ' as primary FROM wordlist \
 			WHERE ' + primary_column + ' LIKE lower(concat(left(\'' + search_param + '\',1),\'%\')) \
 			AND levenshtein(right(' + primary_column + ', -1), lower(right(\'' + search_param + '\', -1))) BETWEEN 1 AND 3 \
-			ORDER BY ' + primary_column + ' LIMIT 8', "", function(err, result) {
+			ORDER BY ' + primary_column + ' LIMIT 10)' + 
+			'UNION ALL (SELECT suggested_word AS primary FROM ((SELECT DISTINCT ' + primary_column + ' AS suggested_word, part_of_speech FROM wordlist WHERE ' 
+			+ primary_column + ' LIKE LOWER(\'' + search_param + ' %\')) UNION (SELECT DISTINCT ' + primary_column 
+			+ ' AS suggested_word, part_of_speech FROM wordlist WHERE ' + primary_column + ' LIKE LOWER(\'% ' + search_param 
+			+ '\')) UNION (SELECT DISTINCT ' + primary_column + ' AS suggested_word, part_of_speech FROM wordlist WHERE ' 
+			+ primary_column + ' LIKE LOWER(\'% ' + search_param + '%\'))) as table1 ORDER BY suggested_word)', "", function(err, result) {
 				if(err) {
 					return console.error('error running query', err);
 				}
