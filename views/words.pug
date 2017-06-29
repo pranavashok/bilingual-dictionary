@@ -1,18 +1,26 @@
 extends layout.pug
 
 block content
+    div.center.clear
+        div.cell
+            input#search(type="search", placeholder="start typing or click on keyboard icon")
+        div.cell
+            img(src="/keyboard_icon.svg", id="keyboard-icon")
     div.flex-container
         div.flex-item
-            h3 Meanings of #{query}
+            h3 Meanings of #[span.highlight #{query}]
             div
                 ol
                     each word in words
-                        if word.part_of_speech
-                            li #{word.translated_word} &nbsp; (#{word.part_of_speech}.)
-                        else
-                            li= word.translated_word
+                        li
+                            a(href='/words/' + word.translated_word.replace(/ /g, '+')) #{word.translated_word}
+                            if word.part_of_speech
+                                span &nbsp; (#{word.part_of_speech}.)
+                            if word.more_details
+                                div.more-details
+                                    span Scientific name: #[a(href=word.more_details.scientific_url) #[span.scientific_name= word.more_details.scientific_name]]
         div.flex-item
-            h3 Related matches for #{query}
+            h3 Related matches for #[span.highlight #{query}]
             div
                 ol
                     each word in related_words
@@ -20,7 +28,7 @@ block content
                             a(href='/words/'+ word.suggested_word.replace(/ /g, '+')) #{word.suggested_word} 
         div.flex-item
             if same_subcat_words[0]
-                h3 Other words in #{same_subcat_words[0].subcategory}
+                h3 Other words in #[span.highlight #{same_subcat_words[0].subcategory}]
             div
                 ol
                     each word in same_subcat_words

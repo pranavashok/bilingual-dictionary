@@ -16,7 +16,7 @@ footer a:hover {
 	flex: 1;
 }
 .Keyboard {
-	padding:1.66em;
+	padding:1.2em;
 }
 .KeyboardRow {
 	text-align: center;
@@ -31,9 +31,9 @@ footer a:hover {
 	color: #777777;
 	font-size: 1em;
 	font-style: normal;
-	height: 2.2em;
-	line-height: 2.2em;
-	width: 2.8em;
+	height: 2em;
+	line-height: 2em;
+	width: 2.2em;
 	text-decoration: none;
 	text-align: center;
 	text-shadow: 1px 1px 0px #ffffff;

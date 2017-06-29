@@ -30,7 +30,7 @@ app.get('/searching', function(req, res) {
 	
 	data = "";
 	pool.query('SELECT DISTINCT ' + primary_column + ' as primary FROM wordlist WHERE ' 
-				+ primary_column + ' LIKE \'' + search_param + '%\' ORDER BY ' + primary_column + '', "", function(err, result) {
+				+ primary_column + ' LIKE LOWER(\'' + search_param + '%\') ORDER BY ' + primary_column + '', "", function(err, result) {
 		if(err) {
 			return console.error('error running query', err);
 		}
@@ -48,8 +48,8 @@ app.get('/searching', function(req, res) {
 		}
 		data += "</table>";
 		pool.query('SELECT DISTINCT ' + primary_column + ' as primary FROM wordlist \
-			WHERE ' + primary_column + ' LIKE concat(left(\'' + search_param + '\',1),\'%\') \
-			AND levenshtein(right(' + primary_column + ', -1), right(\'' + search_param + '\', -1)) BETWEEN 1 AND 2 \
+			WHERE ' + primary_column + ' LIKE lower(concat(left(\'' + search_param + '\',1),\'%\')) \
+			AND levenshtein(right(' + primary_column + ', -1), lower(right(\'' + search_param + '\', -1))) BETWEEN 1 AND 3 \
 			ORDER BY ' + primary_column + ' LIMIT 8', "", function(err, result) {
 				if(err) {
 					return console.error('error running query', err);
@@ -96,20 +96,20 @@ app.get("/words/:word", function(req, res) {
 		primary_column = "konkani_word";
 		secondary_column = "english_word";
 	}
-	pool.query('(SELECT ' + primary_column + ' AS suggested_word, part_of_speech FROM wordlist WHERE ' + primary_column + ' LIKE \'' + word 
-	+ ' %\') UNION ALL (SELECT ' + primary_column + ' AS suggested_word, part_of_speech FROM wordlist WHERE ' + primary_column + ' LIKE \'% ' + word 
-	+ '\') UNION ALL (SELECT ' + primary_column + ' AS suggested_word, part_of_speech FROM wordlist WHERE ' + primary_column + ' LIKE \'% ' + word + '%\')',
+	pool.query('SELECT suggested_word FROM ((SELECT DISTINCT ' + primary_column + ' AS suggested_word, part_of_speech FROM wordlist WHERE ' + primary_column + ' LIKE LOWER(\'' + word 
+	+ ' %\')) UNION (SELECT DISTINCT ' + primary_column + ' AS suggested_word, part_of_speech FROM wordlist WHERE ' + primary_column + ' LIKE LOWER(\'% ' + word 
+	+ '\')) UNION (SELECT DISTINCT ' + primary_column + ' AS suggested_word, part_of_speech FROM wordlist WHERE ' + primary_column + ' LIKE LOWER(\'% ' + word + '%\'))) as table1 ORDER BY suggested_word',
 	'', function(suggest_err, suggest_result) {
 		if(suggest_err) {
 			return console.error('error running query', suggest_err);
 		}
-		pool.query('SELECT ' + secondary_column + ' AS translated_word, part_of_speech FROM wordlist WHERE ' + primary_column + ' LIKE \'' + word 
-			+ '\'', '', function(main_err, main_result) {
+		pool.query('SELECT ' + secondary_column + ' AS translated_word, part_of_speech, more_details FROM wordlist WHERE ' + primary_column + ' LIKE LOWER(\'' + word 
+			+ '\')', '', function(main_err, main_result) {
 			if(main_err) {
 				return console.error('error running query', main_err);
 			}
-			pool.query('SELECT ' + primary_column + ' AS word_in_same_cat, subcategory FROM wordlist WHERE subcategory IN (SELECT subcategory FROM wordlist WHERE ' 
-				+ primary_column + ' LIKE \'' + word + '\' LIMIT 1)', '', function(same_subcat_err, same_subcat_result) {
+			pool.query('SELECT DISTINCT ' + primary_column + ' AS word_in_same_cat, subcategory FROM wordlist WHERE subcategory IN (SELECT subcategory FROM wordlist WHERE ' 
+				+ primary_column + ' LIKE LOWER(\'' + word + '\') LIMIT 1) ORDER BY ' + primary_column, '', function(same_subcat_err, same_subcat_result) {
 				res.render('words', 
 					{ title: 'A Southern Konkani Vocabulary Collection', 
 				  	heading: 'A Southern Konkani Vocabulary Collection', 
