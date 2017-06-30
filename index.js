@@ -38,6 +38,11 @@ app.get('/searching', function(req, res) {
 		}
 		data += "<table class=\"results-table\" id=\"dict-results-table\">";
 		if (result.rows.length == 0) {
+			pool.query('INSERT INTO searchlog (word) VALUES (\'' + search_param + '\');', "", function(err, result) {
+				if(err) {
+					return console.error('error running query', err);
+				}
+			});
 			data += "<thead><tr><td>No exact matches</td></tr></thead>";
 			data += "</thead>";
 		} else {
@@ -84,20 +89,6 @@ app.get('/searching', function(req, res) {
 	});
 });
 
-// parameter middleware that will run before the next routes
-app.param('word', function(req, res, next, word) {
-
-    // check if the user with that name exists
-    // do some validations
-    // add -dude to the name
-    var modified = word.replace(/\+/g, ' ');
-
-    // save name to the request
-    req.name = modified;
-
-    next();
-});
-
 app.get("/words/:word", function(req, res) {
 	word = req.params.word.replace(/\+/g, ' ');
 	// If typing in English, then
@@ -108,6 +99,13 @@ app.get("/words/:word", function(req, res) {
 		primary_column = "konkani_word";
 		secondary_column = "english_word";
 	}
+
+	pool.query('UPDATE wordlist SET browse_count = browse_count + 1 WHERE ' + primary_column + ' LIKE \'' + word + '\'', '', function(err,res) {
+		if (err) {
+			return console.error('error updating browse count', err);
+		}
+	});
+
 	pool.query('SELECT suggested_word FROM ((SELECT DISTINCT ' + primary_column + ' AS suggested_word, part_of_speech FROM wordlist WHERE ' + primary_column + ' LIKE LOWER(\'' + word 
 	+ ' %\')) UNION (SELECT DISTINCT ' + primary_column + ' AS suggested_word, part_of_speech FROM wordlist WHERE ' + primary_column + ' LIKE LOWER(\'% ' + word 
 	+ '\')) UNION (SELECT DISTINCT ' + primary_column + ' AS suggested_word, part_of_speech FROM wordlist WHERE ' + primary_column + ' LIKE LOWER(\'% ' + word + '%\'))) as table1 ORDER BY suggested_word',

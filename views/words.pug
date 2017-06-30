@@ -25,7 +25,8 @@ block content
                                 span &nbsp; (#{word.part_of_speech}.)
                             if word.more_details
                                 div.more-details
-                                    span Scientific name: #[a(href=word.more_details.scientific_url) #[span.scientific_name= word.more_details.scientific_name]]
+                                    - var json = JSON.parse(word.more_details);
+                                    span Scientific name: #[a(href=json.scientific_url) #[span.scientific_name= json.scientific_name]]
         div.flex-item
             h3 Related matches for #[span.highlight #{query}]
             div
