@@ -38,7 +38,7 @@ app.get('/searching', function(req, res) {
 		}
 		data += "<table class=\"results-table\" id=\"dict-results-table\">";
 		if (result.rows.length == 0) {
-			pool.query('INSERT INTO searchlog (word) VALUES (\'' + search_param + '\');', "", function(err, result) {
+			pool.query('INSERT INTO searchlog (word, ipaddress) VALUES (\'' + search_param + '\', \'' + req.ip + '\');', "", function(err, result) {
 				if(err) {
 					return console.error('error running query', err);
 				}
