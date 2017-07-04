@@ -33,28 +33,34 @@ block content
                                         span Scientific name: #[a(href=json.scientific_url) #[span.scientific_name= json.scientific_name]]
                                         br
                                     if json.singular_kon
-                                        span Singular (Konkani): #{json.singular_kon}
+                                        span एकवचन (कोंकणी): #{json.singular_kon}
                                         br
                                     if json.singular_kon
                                         span Singular (English): #{json.singular_eng}
                                         br
                                     if json.plural_kon
-                                        span Plural (Konkani): #{json.plural_kon}
+                                        span बहुवचन (कोंकणी): #{json.plural_kon}
                                         br
                                     if json.plural_eng
                                         span Plural (English): #{json.plural_eng}
                                         br
                                     if json.fem_gender_kon
-                                        span Feminine (Konkani): #{json.fem_gender_kon}
+                                        span स्त्रीलिंग (कोंकणी): #{json.fem_gender_kon}
                                         br
                                     if json.fem_gender_eng
                                         span Feminine (English): #{json.fem_gender_eng}
                                         br
                                     if json.masc_gender_kon
-                                        span Masculine (Konkani): #{json.masc_gender_kon}
+                                        span पुलिंग (कोंकणी): #{json.masc_gender_kon}
                                         br
                                     if json.masc_gender_eng
                                         span Masculine (English): #{json.masc_gender_eng}
+                                        br
+                                    if json.opposite_eng
+                                        span विपरीत (कोंकणी): #{json.opposite_kon}
+                                        br                                    
+                                    if json.opposite_eng
+                                        span Antonym (English): #{json.opposite_eng}
                                         br
                                     if json.explanation
                                         span= json.explanation
