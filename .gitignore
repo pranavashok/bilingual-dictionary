@@ -65,4 +65,4 @@ typings/
 !.vscode/extensions.json
 
 # config
-lib/config.js
+config.env
