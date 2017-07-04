@@ -21,12 +21,44 @@ block content
                     each word in words
                         li
                             a(href='/words/' + word.translated_word.replace(/ /g, '+')) #{word.translated_word}
-                            if word.part_of_speech
+                            if word.part_of_speech != "" && word.part_of_speech != "NULL"
                                 span &nbsp; (#{word.part_of_speech}.)
-                            if word.more_details
+                            if word.more_details != "NULL"
                                 div.more-details
                                     - var json = JSON.parse(word.more_details);
-                                    span Scientific name: #[a(href=json.scientific_url) #[span.scientific_name= json.scientific_name]]
+                                    // searched_for = 0 -- english
+                                    // searched_for = 1 -- konkani
+                                    - var searched_for = 1; if (search_param.search(/^([x00-\xFF]+)/) != -1) { searched_for = 0; }
+                                    if json.scientific_name
+                                        span Scientific name: #[a(href=json.scientific_url) #[span.scientific_name= json.scientific_name]]
+                                        br
+                                    if json.singular_kon
+                                        span Singular (Konkani): #{json.singular_kon}
+                                        br
+                                    if json.singular_kon
+                                        span Singular (English): #{json.singular_eng}
+                                        br
+                                    if json.plural_kon
+                                        span Plural (Konkani): #{json.plural_kon}
+                                        br
+                                    if json.plural_eng
+                                        span Plural (English): #{json.plural_eng}
+                                        br
+                                    if json.fem_gender_kon
+                                        span Feminine (Konkani): #{json.fem_gender_kon}
+                                        br
+                                    if json.fem_gender_eng
+                                        span Feminine (English): #{json.fem_gender_eng}
+                                        br
+                                    if json.masc_gender_kon
+                                        span Masculine (Konkani): #{json.masc_gender_kon}
+                                        br
+                                    if json.masc_gender_eng
+                                        span Masculine (English): #{json.masc_gender_eng}
+                                        br
+                                    if json.explanation
+                                        span= json.explanation
+                                        br
         div.flex-item
             h3 Related matches for #[span.highlight #{query}]
             div

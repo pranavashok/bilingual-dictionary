@@ -91,7 +91,8 @@ h3 {
 
 .more-details {
   font-size: 0.7em;
-  color: #888;
+  color: #4c4c4c;
+  line-height: 2;
 }
 
 .more-details a {
