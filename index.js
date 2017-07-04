@@ -135,4 +135,6 @@ app.get("/words/:word", function(req, res) {
 	});
 });
 
-app.listen(3000);
+app.listen(app.get('port'), function() {
+    console.log('App is running, server is listening on port ', app.get('port'));
+});
