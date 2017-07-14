@@ -1,6 +1,6 @@
 var shift = 0;
 window.onload = function() {
-    var spans = document.getElementsByTagName('span');
+    var spans = document.getElementsByClassName('KeyboardKey');
     for(var i = 0; i < spans.length; i++) {
         var span = spans[i];
         

@@ -1,8 +1,8 @@
 body {
-  padding-left: 5%;
-  padding-right: 5%;
   font-size: 24px;
   line-height: 1.75em;
+  margin: 0;
+  padding: 0;
   font-family: arial, Helvetica, sans-serif;
 }
 
@@ -170,4 +170,83 @@ h3 {
   width: 2.22em;
   height: 2.22em;
   display: inline-block;
+}
+
+/* Sidebar, adapted from w3schools */
+
+ /* The side navigation menu */
+.sidenav {
+    height: 100%; /* 100% Full-height */
+    width: 0px; /* 0 width - change this with JavaScript */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Stay on top */
+    top: 0;
+    left: 0;
+    background: #fff;
+    overflow-x: hidden; /* Disable horizontal scroll */
+    padding-top: 35vh; /* Place content 60px from the top */
+    transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.sidenav a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 1.5em;
+    /* color: #fff; */
+    display: block;
+    transition: 0.3s;
+    border-bottom: none;
+}
+
+.sidenav:hover {
+  width: 300px;
+  /* background-color: #fff; */
+}
+
+.sidenav:hover + #main {
+  margin-left: 250px;
+}
+
+/* The navigation menu links */
+.sidenav:hover a {
+    color: #818181;
+    background: none;
+    display: block;
+    transition: 0.3s
+}
+
+/* When you mouse over the navigation links, change their color */
+.sidenav a:hover, .offcanvas a:focus{
+    color: #f1f1f1;
+    background: #111;
+}
+
+/* Style page content - use this if you want to push the page content to the right when you open the side navigation */
+#main {
+    transition: margin-left .5s;
+    padding-left: 5%;
+    padding-right: 5%;
+}
+
+/* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
+@media screen and (max-height: 450px) {
+    .sidenav {padding-top: 15px;}
+    .sidenav a {font-size: 18px;}
+} 
+
+.menu-icon {
+  height: 100vh;
+  width: 3em;
+  position: absolute;
+}
+
+.menu-icon i {
+  font-size: 3em;
+  top: 40vh;
+  position: absolute;
+}
+
+.menu-icon:hover + .sidenav {
+  width: 300px;
 }

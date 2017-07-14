@@ -4,11 +4,17 @@ html
         title= title
         link(rel='stylesheet', href='/stylesheets/style.css')
         link(rel='stylesheet', href='/stylesheets/keyboard.css')
+        link(rel='stylesheet', href='https://fonts.googleapis.com/icon?family=Material+Icons')
         block stylesheets
         script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js")
-        script(src="/javascripts/main.js")
-        script(src="/javascripts/keyboard.js")
+        script(type="text/javascript", src="/javascripts/main.js")
+        script(type="text/javascript", src="/javascripts/keyboard.js")
         block scripts
     body
-        h1 #[a(href="/") #{heading}]
-        block content
+        div.menu-icon #[i.material-icons chevron_right]
+        div.sidenav#sidebar
+            a(href="#") About
+            a(href="#") Contact
+        div#main
+            h1 #[a(href="/") #{heading}]
+            block content
