@@ -21,6 +21,10 @@ app.get('/', function (req, res) {
 	res.render('index', { title: 'A Southern Konkani Vocabulary Collection', heading: 'A Southern Konkani Vocabulary Collection'});
 })
 
+app.get('/about|/suggest|/contact', function (req, res) {	
+	res.render('contact', { title: 'A Southern Konkani Vocabulary Collection', heading: 'A Southern Konkani Vocabulary Collection'});
+})
+
 app.get('/searching', function(req, res) {
 	search_param = req.query.search;
 	// If typing in English, then
