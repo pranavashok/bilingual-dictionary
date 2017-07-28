@@ -3,7 +3,8 @@ var express = require('express')
 var app = express()
 var path = require('path');
 
-app.set('port', (process.env.PORT || 3000));
+app.set('ipaddress', (process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1"));
+app.set('port', (process.env.OPENSHIFT_NODEJS_PORT || 8080));
 
 app.set('views', './views')
 app.set('view engine', 'pug')
@@ -12,10 +13,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.locals.pretty = true;
 
-app.use((req, res, next) => {
+app.use(function(req, res, next) {
     res.locals.user = req.user;
     next();
 });
+
+app.use(require('forest-express-sequelize').init({
+  modelsDir: __dirname + '/models', // Your models directory.
+  envSecret: process.env.FOREST_ENV_SECRET,
+  authSecret: process.env.FOREST_AUTH_SECRET,
+  sequelize: require('./models').sequelize // The sequelize database connection.
+}));
 
 app.get('/', function (req, res) {	
 	res.render('index', { title: 'A Southern Konkani Vocabulary Collection', heading: 'A Southern Konkani Vocabulary Collection'});
@@ -139,6 +147,6 @@ app.get("/words/:word", function(req, res) {
 	});
 });
 
-app.listen(app.get('port'), function() {
+app.listen(app.get('port'), app.get('ipaddress'), function() {
     console.log('App is running, server is listening on port ', app.get('port'));
 });
