@@ -62,6 +62,12 @@ block content
                                     if json.opposite_eng
                                         span Antonym: #{json.opposite_eng}
                                         br
+                                    if json.image_url
+                                        a(href=json.image_url) View image
+                                        br
+                                    if json.konkani_example
+                                        span Example. #{json.konkani_example} - #{json.example_meaning}
+                                        br
                                     if json.explanation
                                         span= json.explanation
                                         br
