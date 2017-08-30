@@ -5,14 +5,16 @@ var Sequelize = require('sequelize');
 
 let databaseOptions = {
   logging: process.env.NODE_ENV === 'development' ? console.log : false,
-  pool: { maxConnections: 10, minConnections: 1 }
+  pool: { maxConnections: 10, minConnections: 1 },
+  host: process.env.POSTGRESQL_HOST,
+  port: process.env.POSTGRESQL_PORT	
 };
 
 if (process.env.SSL_DATABASE) {
   databaseOptions.dialectOptions = { ssl: true };
 }
 
-let sequelize = new Sequelize(process.env.DATABASE_URL, databaseOptions);
+let sequelize = new Sequelize(process.env.POSTGRESQL_DB, process.env.POSTGRESQL_USER, process.env.POSTGRESQL_PASSWORD, databaseOptions);
 let db = {};
 
 fs
