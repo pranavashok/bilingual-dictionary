@@ -18,12 +18,12 @@ app.use(function(req, res, next) {
     next();
 });
 
-/* app.use(require('forest-express-sequelize').init({
+app.use(require('forest-express-sequelize').init({
   modelsDir: __dirname + '/models', // Your models directory.
   envSecret: process.env.FOREST_ENV_SECRET,
   authSecret: process.env.FOREST_AUTH_SECRET,
   sequelize: require('./models').sequelize // The sequelize database connection.
-})); */
+}));
 
 app.get('/', function (req, res) {	
 	res.render('index', { title: 'A Southern Konkani Vocabulary Collection', heading: 'A Southern Konkani Vocabulary Collection'});
