@@ -16,8 +16,8 @@ var config = {
 
 var tableService = azure.createTableService();
 
-app.set('ipaddress', (process.env.NODEJS_IP || "0.0.0.0"));
-app.set('port', (process.env.NODEJS_PORT || 8080));
+app.set('ipaddress', (process.env.IP || "0.0.0.0"));
+app.set('port', (process.env.PORT || 8080));
 
 app.set('views', './views')
 app.set('view engine', 'pug')
@@ -70,13 +70,13 @@ app.get('/searching', function(req, res) {
 	if (search_param.search(/^([x00-\xFF]+)/) != -1) {
 		primary_column = "english_word";
 		secondary_column = "konkani_word";
-		primary_table = db1;
-		secondary_table = db2;
+		primary_table = config.db1;
+		secondary_table = config.db2;
 	} else {
 		primary_column = "konkani_word";
 		secondary_column = "english_word";
-		primary_table = db1;
-		secondary_table = db2;
+		primary_table = config.db1;
+		secondary_table = config.db2;
 	}
 	
 	data = "";
