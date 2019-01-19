@@ -70,13 +70,13 @@ app.get('/searching', function(req, res) {
 	if (search_param.search(/^([x00-\xFF]+)/) != -1) {
 		primary_column = "english_word";
 		secondary_column = "konkani_word";
-		primary_table = "dictengtokon";
-		secondary_table = "dictkontoeng";
+		primary_table = db1;
+		secondary_table = db2;
 	} else {
 		primary_column = "konkani_word";
 		secondary_column = "english_word";
-		primary_table = "dictkontoeng";
-		secondary_table = "dictengtokon";
+		primary_table = db1;
+		secondary_table = db2;
 	}
 	
 	data = "";
