@@ -75,8 +75,8 @@ app.get('/searching', function(req, res) {
 	} else {
 		primary_column = "konkani_word";
 		secondary_column = "english_word";
-		primary_table = config.db1;
-		secondary_table = config.db2;
+		primary_table = config.db2;
+		secondary_table = config.db1;
 	}
 	
 	data = "";
