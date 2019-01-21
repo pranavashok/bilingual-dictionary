@@ -78,13 +78,19 @@ block content
                 ol
                     each word in related_words
                         li 
-                            a(href='/words/'+ word.suggested_word.replace(/ /g, '+')) #{word.suggested_word} 
+                            a(href='/words/'+ word.ParentWord._.replace(/ /g, '+')) #{word.ParentWord._}
         div.flex-item
             if same_subcat_words[0]
-                h3 Other words in #[span.highlight #{same_subcat_words[0].subcategory}]
+                h3 Other words in #[span.highlight #{same_subcat_words[0].subcategory._}]
             div
                 ol
                     each word in same_subcat_words
                         li
-                            if word.word_in_same_cat
-                                a(href='/words/'+ word.word_in_same_cat.replace(/ /g, '+')) #{word.word_in_same_cat} 
+                            - var is_konkani = true; if (query.search(/^([x00-\xFF]+)/) != -1) { is_konkani = false; }
+                            if is_konkani
+                                if word.konkani_word._
+                                    a(href='/words/'+ word.konkani_word._.replace(/ /g, '+')) #{word.konkani_word._}
+                            else
+                                if word.english_word._
+                                    a(href='/words/'+ word.english_word._.replace(/ /g, '+')) #{word.english_word._}
+

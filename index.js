@@ -39,21 +39,26 @@ app.get('/about|/suggest|/contact', function (req, res) {
 	res.render('contact', { title: 'A Southern Konkani Vocabulary Collection', heading: 'A Southern Konkani Vocabulary Collection'});
 })
 
-function unique_by_column(entries, column) {
+function unique_entries_by_column(entries, column) {
 	unique_entries = [];
-	current_word = "";
+	unique_words = [];
 	entries.forEach(function(row) {
-		if (current_word == row[column]._) {
-			duplicate = true;
-		} else {
-			duplicate = false;
-		}
-		if (!duplicate) {
+		if (!unique_words.includes(row[column]._)) {
 			unique_entries.push(row);
-			current_word = row[column]._;
+            unique_words.push(row[column]._);
 		}
 	}, this);
 	return unique_entries;
+}
+
+function unique_words_by_column(entries, column) {
+    unique_words = [];
+    entries.forEach(function(row) {
+        if (!unique_words.includes(row[column]._)) {
+            unique_words.push(row[column]._);
+        }
+    }, this);
+    return unique_words;
 }
 
 // Next word in dict order
@@ -72,19 +77,25 @@ app.get('/searching', function(req, res) {
 		secondary_column = "konkani_word";
 		primary_table = config.db1;
 		secondary_table = config.db2;
+        suggest_table = 'suggesteng';
 	} else {
 		primary_column = "konkani_word";
 		secondary_column = "english_word";
 		primary_table = config.db2;
 		secondary_table = config.db1;
+        suggest_table = 'suggestkon';
 	}
 	
-	data = "";
+	var data = "";
 
 	var startswith_query = new azure.TableQuery()
 					.select([primary_column])
 					.top(30)
-					.where("PartitionKey ge ? and PartitionKey lt ?", search_param, next_word(search_param));
+					.where("PartitionKey ge ? and PartitionKey lt ?", search_param.toLowerCase(), next_word(search_param).toLowerCase());
+
+    var containingwords_query = new azure.TableQuery()
+                    .select(['RowKey', 'ParentWord', 'StrippedWord'])
+                    .where("PartitionKey ge ? and PartitionKey lt ?", search_param.toLowerCase(), next_word(search_param).toLowerCase());
 
 	tableService.queryEntities(primary_table, startswith_query, null, function(error, result, response) {
 		data += "<table class=\"results-table\" id=\"dict-results-table\">";
@@ -92,9 +103,9 @@ app.get('/searching', function(req, res) {
 			data += "<thead><tr><td>Dictionary-style matches</td></tr></thead>";
 			data += "<tbody>";
 			
-			unique_entries = unique_by_column(result.entries, primary_column);
-			unique_entries.forEach(function(row) {
-				data += "<tr><td><a href=\"/words/" + row[primary_column]._.replace(/ /g, '+') + "\">" + row[primary_column]._ + "</a></td></tr>";
+			var unique_words = unique_words_by_column(result.entries, primary_column);
+			unique_words.forEach(function(word) {
+				data += "<tr><td><a href=\"/words/" + word.replace(/ /g, '+') + "\">" + word + "</a></td></tr>";
 			}, this);
 			data += "</tbody>";
 		} else {
@@ -103,26 +114,32 @@ app.get('/searching', function(req, res) {
 		}
 		data += "</table>";
 
+        // Pick entries which contain query word in any way
+        tableService.queryEntities(suggest_table, containingwords_query, null, function(error, result, response) {
+            data += "<table class=\"results-table\" id=\"suggested-results-table\">";
+            if(!error && result.entries.length > 0) {
+                data += "<thead><tr><td>Suggested matches</td></tr></thead>";
+                data += "<tbody>";
 
-		// TODO: Suggested results
-		// 1. Ignore first word and pick stuff which are edit distance close, order them alphabetically
-		// 2. Pick words which contain query in any way (query %), (% query) or (% query %)
+                var unique_suggested_words = unique_words_by_column(result.entries, 'ParentWord');
+                // Remove words which are already present in unique_words
+                unique_suggested_words = unique_suggested_words.filter(x => unique_words.indexOf(x) < 0 );
 
-		// data += "<table class=\"results-table\" id=\"suggested-results-table\">";
-		// if (result.rows.length == 0) {
-		// 	data += "<thead><tr><td>Try another query</td></tr></thead>";
-		// 	data += "</thead>";
-		// } else {
-		// 	data += "<thead><tr><td>Suggested matches</td></tr></thead>";
-		// 	data += "<tbody>";
-		// 	result.rows.forEach(function(row) {
-		// 		data += "<tr><td><a href=\"/words/" + row.primary.replace(/ /g, '+') + "\">" + row.primary + "</a></td></tr>";
-		// 	}, this);
-		// 	data += "</tbody>";
-		// }
-		// data += "</table>";
+                unique_suggested_words.forEach(function(word) {
+                    data += "<tr><td><a href=\"/words/" + word.replace(/ /g, '+') + "\">" + word + "</a></td></tr>";
+                }, this);
+                data += "</tbody>";
+            } else {
+                data += "<thead><tr><td>No other suggestions</td></tr></thead>";
+                data += "</thead>";
+            }
+            data += "</table>";
 
-		res.send(data);
+            res.send(data);
+        });
+
+        // TODO: Ignore first word and pick stuff which are edit distance close, order them alphabetically
+
 	});
 });
 
@@ -134,11 +151,13 @@ app.get("/words/:word", function(req, res) {
 		secondary_column = "konkani_word";
 		primary_table = "dictengtokon";
 		secondary_table = "dictkontoeng";
+        suggest_table = 'suggesteng';
 	} else {
 		primary_column = "konkani_word";
 		secondary_column = "english_word";
 		primary_table = "dictkontoeng";
 		secondary_table = "dictengtokon";
+        suggest_table = 'suggestkon';
 	}
 
 	// TODO: Update browse_count
@@ -146,36 +165,57 @@ app.get("/words/:word", function(req, res) {
 	// TODO: Related words, same subcategory words
 
 	var exact_word_query = new azure.TableQuery()
-					.select([secondary_column, 'part_of_speech', 'more_details'])
-					.where("PartitionKey ge ? and PartitionKey lt ? and " + primary_column + " eq ?", word, next_word(word), word);
+					.select([secondary_column, 'part_of_speech', 'subcategory', 'more_details'])
+					.where("PartitionKey ge ? and PartitionKey lt ? and " + primary_column + " eq ?", word.toLowerCase(), next_word(word).toLowerCase(), word.toLowerCase());
+
+    var containingwords_query = new azure.TableQuery()
+                    .select(['RowKey', 'ParentWord', 'StrippedWord'])
+                    .where("PartitionKey eq ?", word.toLowerCase());
 
 	tableService.queryEntities(primary_table, exact_word_query, null, function(error, result, response) {
-		
-		// TODO: Related words
-		// Pick words which contain query in any way (query %), (% query) or (% query %)
-
-		// TODO: Same subcategory words
-
 		if(!error && result.entries.length > 0) {
-			res.render('words', 
-					{ title: 'A Southern Konkani Vocabulary Collection', 
-					heading: 'A Southern Konkani Vocabulary Collection', 
-					query: word, 
-					words: result.entries,
-					related_words: [],
-					same_subcat_words: []
-			});
-		} else {
-			res.render('words', 
-					{ title: 'A Southern Konkani Vocabulary Collection', 
-					heading: 'A Southern Konkani Vocabulary Collection', 
-					query: word, 
-					words: [],
-					related_words: [],
-					same_subcat_words: []
-			});
-		}
+            main_result = result;
+
+            // Pick entries which contain query word in any way
+            var related_entries = [];
+            tableService.queryEntities(suggest_table, containingwords_query, null, function(error, result, response) {
+                if(!error && result.entries.length > 0) {
+                    related_entries = unique_entries_by_column(result.entries, 'ParentWord');
+                }
+
+                // Same subcategory words
+                var samesubcat_query = new azure.TableQuery()
+                            .select([primary_column, 'subcategory'])
+                            .where('subcategory eq ?', main_result.entries[0].subcategory._);
+
+                var samesubcat_entries = [];
+                tableService.queryEntities(primary_table, samesubcat_query, null, function(error, result, response) {
+                    if(!error && result.entries.length > 0) {
+                        samesubcat_entries = unique_entries_by_column(result.entries, primary_column);
+                    }
+
+                    res.render('words',
+                        { title: 'A Southern Konkani Vocabulary Collection',
+                        heading: 'A Southern Konkani Vocabulary Collection',
+                        query: word,
+                        words: main_result.entries,
+                        related_words: related_entries,
+                        same_subcat_words: samesubcat_entries
+                    });
+                });
+            });
+        } else {
+            res.render('words',
+                    { title: 'A Southern Konkani Vocabulary Collection',
+                    heading: 'A Southern Konkani Vocabulary Collection',
+                    query: word,
+                    words: [],
+                    related_words: [],
+                    same_subcat_words: []
+            });
+        }
 	});	
+
 });
 
 app.listen(app.get('port'), app.get('ipaddress'), function() {
