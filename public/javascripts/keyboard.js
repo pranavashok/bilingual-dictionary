@@ -1,5 +1,5 @@
 var shift = 0;
-window.onload = function() {
+window.addEventListener("load", function() {
     var spans = document.getElementsByClassName('KeyboardKey');
     for(var i = 0; i < spans.length; i++) {
         var span = spans[i];
@@ -143,7 +143,7 @@ window.onload = function() {
 			}
 		}
 	});
-}
+});
 
 function shiftpress() {
 	var nonshifts = document.getElementsByClassName("nonshift");

@@ -1,18 +1,29 @@
 extends layout.pug
 
 block content
-    div.center.clear
-        div.cell
-            input#search(type="search", placeholder="start typing or click on keyboard icon")
-        div.cell
-            img(src="/keyboard_icon.svg", id="keyboard-icon")
-    div.center
-        include keyboard.html
-    div.center
-        div.cell.overlaybox
-            div#results
-        div.cell
-            div.dummy 
+    div#search-container.flex-container
+        div.row
+            div.center
+                include keyboard.html
+            div.center
+                div.cell
+                    input#search(type="text", class="pure-form", placeholder="start typing or select another input method")
+                div.cell
+                    div(class="btn-group btn-group-toggle", data-toggle="buttons")
+                        label(class="btn btn-secondary active")
+                            input(type="radio", name="options", id="opt-roman", autocomplete="off", value="roman", onchange="pramukhIME.disable();onSceenKeyboard();" checked)
+                            | English
+                        label(class="btn btn-secondary")
+                            input(type="radio", name="options", id="opt-nagari", autocomplete="off", value="nagari", onchange="pramukhIME.enable();onSceenKeyboard();") 
+                            | कोंकणी
+                        label(class="btn btn-secondary btn-long-text")
+                            input(type="radio" name="options" id="opt-keyboard" autocomplete="off", value="keyboard", onchange="pramukhIME.enable();onSceenKeyboard();")
+                            | On-screen<br/>Keyboard
+            div.center
+                div.cell
+                    div#results
+                div.cell
+                    div.dummy
     div#specific-results.flex-container
         div.flex-item
             h3 Meanings of #[span.highlight #{query}]
@@ -88,9 +99,11 @@ block content
                         li
                             - var is_konkani = true; if (query.search(/^([x00-\xFF]+)/) != -1) { is_konkani = false; }
                             if is_konkani
-                                if word.konkani_word._
-                                    a(href='/words/'+ word.konkani_word._.replace(/ /g, '+')) #{word.konkani_word._}
+                                if word.konkani_word
+                                    if word.konkani_word._
+                                        a(href='/words/'+ word.konkani_word._.replace(/ /g, '+')) #{word.konkani_word._}
                             else
-                                if word.english_word._
-                                    a(href='/words/'+ word.english_word._.replace(/ /g, '+')) #{word.english_word._}
+                                if word.english_word
+                                    if word.english_word._
+                                        a(href='/words/'+ word.english_word._.replace(/ /g, '+')) #{word.english_word._}
 

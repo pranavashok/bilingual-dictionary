@@ -54,7 +54,7 @@ function unique_entries_by_column(entries, column) {
 function unique_words_by_column(entries, column) {
     unique_words = [];
     entries.forEach(function(row) {
-        if (!unique_words.includes(row[column]._)) {
+        if (row[column] && !unique_words.includes(row[column]._)) {
             unique_words.push(row[column]._);
         }
     }, this);

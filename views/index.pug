@@ -4,14 +4,23 @@ block content
     div.flex-container
         div.row
             div.center
-                div.cell
-                    input#search(type="search", placeholder="start typing or click on keyboard icon")
-                div.cell
-                    img(src="/keyboard_icon.svg", id="keyboard-icon")
-            div.center
                 include keyboard.html
+            div.center
+                div.cell
+                    input#search(type="text", class="pure-form", placeholder="start typing or select another input method")
+                div.cell
+                    div(class="btn-group btn-group-toggle", data-toggle="buttons")
+                        label(class="btn btn-secondary active")
+                            input(type="radio", name="options", id="opt-roman", autocomplete="off", value="roman", onchange="pramukhIME.disable();onSceenKeyboard();" checked)
+                            | English
+                        label(class="btn btn-secondary")
+                            input(type="radio", name="options", id="opt-nagari", autocomplete="off", value="nagari", onchange="pramukhIME.enable();onSceenKeyboard();") 
+                            | कोंकणी
+                        label(class="btn btn-secondary btn-long-text")
+                            input(type="radio" name="options" id="opt-keyboard" autocomplete="off", value="keyboard", onchange="pramukhIME.enable();onSceenKeyboard();")
+                            | On-screen<br/>Keyboard
             div.center
                 div.cell
                     div#results
                 div.cell
-                    div.dummy              
+                    div.dummy

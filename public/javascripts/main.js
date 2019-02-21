@@ -21,18 +21,22 @@ var sidebarOpen = false;
 $(function(){
     // In order to make keyboard readonly, so that mobile 
     // keyboard doesn't pop up when using onscreen keyboard
-    var isMobile = window.matchMedia("only screen and (max-width: 760px)");
+    $('#search').focus();
     
     $(".keyboard").hide();
     
     $('#search').on('keyup focus', function(e){    
         $("#specific-results").fadeTo(200,0.05);
         if ($(this).val() == "") {
+            if (!$('#results').is(':visible'))
+                $('#results').slideDown();
             $('#results').html("");
         }
         else {
             var parameters = { search: $(this).val() };
             $.get( '/searching', parameters, function(data) {
+                if (!$('#results').is(':visible'))
+                    $('#results').slideDown();
                 $('#results').html(data);
             });
         }
@@ -43,28 +47,30 @@ $(function(){
             var isKbVisible = $(".keyboard").is(':visible');
             if (!isKbVisible) {
                 $("#specific-results").fadeTo(0,1);
+                $("#results").hide();
             }
         }, 100);
-        
-    });
-    
-    $("#keyboard-icon").click(function(e) {
-        var isKbVisible = $(".keyboard").is(':visible');
-
-        if (!isKbVisible) {
-            if (isMobile.matches) {
-                $("#search").attr('readonly', 'readonly');
-            }
-            $("#specific-results").fadeTo(0,0.05);
-            $(".keyboard").show();
-        }
-
-        if (isKbVisible) {
-            if (isMobile.matches) {
-                $("#search").removeAttr('readonly').select();
-            }
-            $(".keyboard").hide();
-            $("#specific-results").fadeTo(0,1);
-        }            
     });
 });
+
+function onSceenKeyboard() {
+    var isKbSelected = $("#opt-keyboard").is(":checked");
+    var isMobile = window.matchMedia("only screen and (max-width: 760px)");
+    var isKbVisible = $(".keyboard").is(':visible');
+
+    if (isKbSelected && !isKbVisible) {
+        if (isMobile.matches) {
+            $("#search").attr('readonly', 'readonly');
+        }
+        $("#specific-results").fadeTo(0,0.05);
+        $(".keyboard").show("slide");
+    }
+
+    if (!isKbSelected) {
+        if (isMobile.matches) {
+            $("#search").removeAttr('readonly').select();
+        }
+        $(".keyboard").hide("slide");
+        $("#specific-results").fadeTo(0,1);
+    }            
+}
