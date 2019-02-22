@@ -71,6 +71,12 @@ function next_word(word) {
 app.get('/searching', function(req, res) {
 	search_param = req.query.search;
 
+    // Handle empty requests
+    if (search_param === "") {
+        res.send("");
+        return;
+    }
+
 	// If typing in English, then
 	if (search_param.search(/^([x00-\xFF]+)/) != -1) {
 		primary_column = "english_word";

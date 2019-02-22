@@ -20,34 +20,55 @@ var sidebarOpen = false;
 
 $(function(){
     // In order to make keyboard readonly, so that mobile 
-    // keyboard doesn't pop up when using onscreen keyboard
-    $('#search').focus();
-    
+    // keyboard doesn't pop up when using onscreen keyboard    
     $(".keyboard").hide();
     
-    $('#search').on('keyup focus', function(e){    
-        $("#specific-results").fadeTo(200,0.05);
-        if ($(this).val() == "") {
-            if (!$('#results').is(':visible'))
-                $('#results').slideDown();
+    var currentRequest = null;
+
+    $('#search').on('keyup focus', function(e){
+        // $(".homepage-container").animate({"margin-top": "0"}, "fast");
+
+        $("#specific-results").fadeTo(200,0.1);
+
+        var query = $(this).val();
+
+        if (!query) {
+            if(currentRequest != null) {
+                currentRequest.abort();
+            }
             $('#results').html("");
+            return;
         }
-        else {
-            var parameters = { search: $(this).val() };
-            $.get( '/searching', parameters, function(data) {
-                if (!$('#results').is(':visible'))
-                    $('#results').slideDown();
+
+        currentRequest = $.ajax({
+            type: 'GET',
+            data: 'search=' + query,
+            url: '/searching',
+            beforeSend : function()    {           
+                if(currentRequest != null) {
+                    currentRequest.abort();
+                }
+            },
+            success: function(data) {
                 $('#results').html(data);
-            });
-        }
+            },
+            error:function(e){
+                $('#results').html("");
+            }
+        });
     });
 
     $("#search").focusout(function(e) {
         setTimeout(function() {
-            var isKbVisible = $(".keyboard").is(':visible');
-            if (!isKbVisible) {
+            var isKbActive = $(".keyboard").is(':active');
+            var clickingOnResult = $("#results").is(':active');
+            // Show specific results only if 
+            // focus is not on keyboard
+            // focus is outside the result box
+            if (!isKbActive && !clickingOnResult) {
                 $("#specific-results").fadeTo(0,1);
-                $("#results").hide();
+                // Clear results
+                // $("#results").html("");
             }
         }, 100);
     });
