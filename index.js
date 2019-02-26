@@ -39,6 +39,10 @@ app.get('/about|/suggest|/contact', function (req, res) {
 	res.render('contact', { title: 'A Southern Konkani Vocabulary Collection', heading: 'A Southern Konkani Vocabulary Collection'});
 })
 
+app.get('/contents', function (req, res) {   
+    res.render('contents', { title: 'A Southern Konkani Vocabulary Collection', heading: 'A Southern Konkani Vocabulary Collection'});
+})
+
 function unique_entries_by_column(entries, column) {
 	unique_entries = [];
 	unique_words = [];

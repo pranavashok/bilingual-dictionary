@@ -223,7 +223,19 @@ h3 {
   cursor: pointer;
 }
 
+.navbar-container {
+  display: flex;
+  align-content: center;
+}
 
+nav a {
+  border-bottom: none;
+  font-size: 1.25rem;
+}
+
+nav .navbar-brand {
+  font-size: 1.25rem;
+}
 
 #specific-results {
   position: absolute;
@@ -269,55 +281,7 @@ h3 {
   display: inline-block;
 }
 
-/* Sidebar, adapted from w3schools */
-
- /* The side navigation menu */
-.sidenav {
-    height: 100%; /* 100% Full-height */
-    width: 0px; /* 0 width - change this with JavaScript */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Stay on top */
-    top: 0;
-    left: 0;
-    background: #fff;
-    overflow-x: hidden; /* Disable horizontal scroll */
-    padding-top: 35vh; /* Place content 60px from the top */
-    transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-}
-
-.sidenav a {
-    padding: 8px 8px 8px 32px;
-    text-decoration: none;
-    font-size: 1.5em;
-    /* color: #fff; */
-    display: block;
-    transition: 0.3s;
-    border-bottom: none;
-}
-
-.sidenav:hover {
-  width: 300px;
-  /* background-color: #fff; */
-}
-
-.sidenav:hover + #main {
-  margin-left: 250px;
-}
-
-/* The navigation menu links */
-.sidenav:hover a {
-    color: #818181;
-    background: none;
-    display: block;
-    transition: 0.3s
-}
-
-/* When you mouse over the navigation links, change their color */
-.sidenav a:hover, .offcanvas a:focus{
-    color: #f1f1f1;
-    background: #111;
-}
+/* Sidebar was here */
 
 /* Style page content - use this if you want to push the page content to the right when you open the side navigation */
 #main {
@@ -330,22 +294,6 @@ h3 {
 @media screen and (max-height: 450px) {
     .sidenav {padding-top: 15px;}
     .sidenav a {font-size: 18px;}
-} 
-
-.menu-icon {
-  height: 100vh;
-  width: 3em;
-  position: absolute;
-}
-
-.menu-icon i {
-  font-size: 3em;
-  top: 40vh;
-  position: absolute;
-}
-
-.menu-icon:hover + .sidenav {
-  width: 300px;
 }
 
 /* Toggle */
@@ -355,6 +303,33 @@ h3 {
   min-width: 5rem;
   padding-top: 0.8rem;
   margin-top: 0;
+  color: #545454;
+  background-color: #fff;
+  border-color: #0087ff;
+}
+
+.btn-secondary:not(:disabled):not(.disabled).active {
+  color: #414141;
+  background-color: #c7e3ff;
+  border-color: #0087ff;
+}
+
+.btn-secondary:not(:disabled):not(.disabled):active {
+  color: #414141;
+  background-color: #70b7ff;
+  border-color: #0087ff;
+}
+
+.btn-secondary:hover {
+  color: #414141;
+  background-color: #c7e3ff;
+  border-color: #0087ff;
+}
+
+.btn-secondary:focus, .btn-secondary.focus {
+  color: #414141;
+  background-color: #c7e3ff;
+  border-color: #0087ff;
 }
 
 .btn-long-text {
@@ -390,4 +365,51 @@ h3 {
       height: 1.7rem;
       padding-top: 0;
   }
+}
+
+/* Contents page */
+
+ul.contents-accordion {
+    list-style: none;
+    padding-left: 25%;
+  
+    .inner {
+        padding-left: 1em;
+        overflow: hidden;
+        display: none;
+      
+        &.show {
+          /*display: block;*/
+        }
+    }
+  
+    li {
+        margin: .5em 0;
+      
+        a.toggle {
+            width: 100%;
+            display: block;
+            background: rgba(0,0,0,0.78);
+            color: #fefefe;
+            padding: .75em;
+            border-radius: 0.15em;
+            transition: background .3s ease;
+          
+            &:hover {
+                background: rgba(0, 0, 0, 0.9);
+            }
+        }
+    }
+}
+
+.contents-container {
+    height: 100%;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    flex-flow: column wrap;
+    align-items: left;
+    justify-content: left;
 }
