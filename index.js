@@ -129,7 +129,9 @@ app.get('/searching', function(req, res) {
 
                 var unique_suggested_words = unique_words_by_column(result.entries, 'ParentWord');
                 // Remove words which are already present in unique_words
-                unique_suggested_words = unique_suggested_words.filter(x => unique_words.indexOf(x) < 0 );
+                if (unique_words) {
+                    unique_suggested_words = unique_suggested_words.filter(x => unique_words.indexOf(x) < 0 );
+                }
 
                 unique_suggested_words.forEach(function(word) {
                     data += "<tr><td><a href=\"/words/" + word.replace(/ /g, '+') + "\">" + word + "</a></td></tr>";

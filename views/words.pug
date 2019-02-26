@@ -2,30 +2,30 @@ extends layout.pug
 
 block content
     div#search-container.flex-container
-        div.row
-            div.center
-                include keyboard.html
-            div.center
-                div.cell
-                    input#search(type="text", class="pure-form", placeholder="start typing or select another input method")
-                div.cell
-                    div(class="btn-group btn-group-toggle", data-toggle="buttons")
-                        label(class="btn btn-secondary active")
-                            input(type="radio", name="options", id="opt-roman", autocomplete="off", value="roman", onchange="pramukhIME.disable();onSceenKeyboard();" checked)
-                            | English
-                        label(class="btn btn-secondary")
-                            input(type="radio", name="options", id="opt-nagari", autocomplete="off", value="nagari", onchange="pramukhIME.enable();onSceenKeyboard();") 
-                            | कोंकणी
-                        label(class="btn btn-secondary btn-long-text")
-                            input(type="radio" name="options" id="opt-keyboard" autocomplete="off", value="keyboard", onchange="pramukhIME.enable();onSceenKeyboard();")
-                            | On-screen<br/>Keyboard
-            div.center
-                div.cell
-                    div#results
-                div.cell
-                    div.dummy
-    div#specific-results.flex-container
         div.flex-item
+            include keyboard.html
+        div.flex-item.flex-reverse
+            div.flex-inner
+                input#search(type="text", class="pure-form", placeholder="start typing or select another input method")
+            div.flex-inner
+                div(class="btn-group btn-group-toggle", data-toggle="buttons")
+                    label(class="btn btn-secondary active")
+                        input(type="radio", name="options", id="opt-roman", autocomplete="off", value="roman", onchange="pramukhIME.disable();onSceenKeyboard();" checked)
+                        | English
+                    label(class="btn btn-secondary")
+                        input(type="radio", name="options", id="opt-nagari", autocomplete="off", value="nagari", onchange="pramukhIME.enable();onSceenKeyboard();") 
+                        | कोंकणी
+                    label(class="btn btn-secondary btn-long-text")
+                        input(type="radio" name="options" id="opt-keyboard" autocomplete="off", value="keyboard", onchange="pramukhIME.enable();onSceenKeyboard();")
+                        | On-screen<br/>Keyboard
+        div.flex-item
+            div.flex-inner
+                div#results
+            div.flex-inner
+                div.dummy
+
+    div#specific-results
+        div.flex-inner
             h3 Meanings of #[span.highlight #{query}]
             div
                 ol
@@ -83,14 +83,14 @@ block content
                                     if json.explanation
                                         span= json.explanation
                                         br
-        div.flex-item
+        div.flex-inner
             h3 Related matches for #[span.highlight #{query}]
             div
                 ol
                     each word in related_words
                         li 
                             a(href='/words/'+ word.ParentWord._.replace(/ /g, '+')) #{word.ParentWord._}
-        div.flex-item
+        div.flex-inner
             if same_subcat_words[0]
                 h3 Other words in #[span.highlight #{same_subcat_words[0].subcategory._}]
             div
