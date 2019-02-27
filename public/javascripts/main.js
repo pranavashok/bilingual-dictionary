@@ -22,6 +22,9 @@ $(function(){
     // In order to make keyboard readonly, so that mobile 
     // keyboard doesn't pop up when using onscreen keyboard    
     $(".keyboard").hide();
+
+    // collapseContents();
+    $('.contents-accordion').find(".inner").slideUp(600);
     
     var currentRequest = null;
 
@@ -74,7 +77,12 @@ $(function(){
     });
 
     $('.contents-toggle').click(function(e) {
-        e.preventDefault();
+        if (e.target.href.startsWith("javascript"))
+            e.preventDefault();
+        else {
+            window.open(e.target.href, '_blank');
+            e.preventDefault();
+        }
       
         var $this = $(this);
       
@@ -83,7 +91,7 @@ $(function(){
             $this.next().slideUp(350);
         } else {
             $this.parent().parent().find('li .inner').removeClass('show');
-            // $this.parent().parent().find('li .inner').slideUp(350);
+            $this.parent().parent().find('li .inner').slideUp(350);
             $this.next().toggleClass('show');
             $this.next().slideToggle(350);
         }
@@ -109,5 +117,6 @@ function onSceenKeyboard() {
         }
         $(".keyboard").hide("slide");
         $("#specific-results").fadeTo(0,1);
-    }            
+    }        
+
 }

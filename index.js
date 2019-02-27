@@ -230,6 +230,32 @@ app.get("/words/:word", function(req, res) {
 
 });
 
+app.get("/category/:category", function(req, res) {
+    category = req.params.category.replace(/\+/g, ' ');
+
+    // TODO: Update browse_count
+
+    // TODO: Related words, same subcategory words
+
+    // Same subcategory words
+    var samesubcat_query = new azure.TableQuery()
+                .select(['english_word', 'konkani_word', 'subcategory'])
+                .where('subcategory eq ?', category);
+
+    var samesubcat_entries = [];
+    tableService.queryEntities('dictengtokon', samesubcat_query, null, function(error, result, response) {
+        if(!error && result.entries.length > 0) {
+            samesubcat_entries = unique_entries_by_column(result.entries, 'english_word');
+        }
+
+        res.render('subcategory',
+            { title: 'A Southern Konkani Vocabulary Collection',
+            heading: 'A Southern Konkani Vocabulary Collection',
+            same_subcat_words: samesubcat_entries
+        });
+    });
+});
+
 app.listen(app.get('port'), app.get('ipaddress'), function() {
 	console.log('App is running, server is listening on host:port ', app.get('ipaddress'), ':', app.get('port'));
 });
