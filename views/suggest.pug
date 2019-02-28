@@ -1,0 +1,36 @@
+extends layout.pug   
+
+block content
+    div.flex-container
+        div.row.narrow-width
+            h2 Suggest
+            div If you would like to contribute a new word to the repository or give any other suggestion/feedback, we would love to hear from you through the form below.
+        div.row.narrow-width
+            form.suggest-form(method='POST' action='/submit-suggestion')
+                div.form-group
+                    label(for='name') Name (optional)
+                    input.form-control(type='text', placeholder='Enter your name here' name='name')
+                div.form-group
+                    label(for='email') Email (optional)
+                    input.form-control(type='email', placeholder='name@email.com' name='email')
+                div.form-group
+                    label(for='suggestion') Suggestion
+                    textarea.form-control(rows=6, placeholder='Type your suggestion here' name='suggestion')
+                button.btn.btn-primary(type='submit') Submit
+
+    nav.fixed-bottom.navbar.navbar-expand-md.navbar-light.bg-light(style="background-color: #e3f2fd;")
+        button.navbar-toggler(type="button", data-toggle="collapse", data-target="#navbarToggler", aria-controls="navbarToggler", aria-expanded="false", aria-label="Toggle navigation")
+            span.navbar-toggler-icon
+        div.collapse.navbar-collapse(id="navbarToggler")
+            a.navbar-brand(href="/", style="color: #000; font-weight: 500;") दक्षिण कोंकणी उतरावळि
+            ul.navbar-nav.mr-auto
+                li.nav-item
+                    a.nav-link(href="/") Search
+                li.nav-item
+                    a.nav-link(href="/contents") Contents
+                li.nav-item
+                    a.nav-link.active(href="/suggest") Suggest
+                li.nav-item
+                    a.nav-link(href="/about") About    
+                li.nav-item
+                    a.nav-link(href="/contact") Contact

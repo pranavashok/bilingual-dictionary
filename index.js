@@ -32,15 +32,23 @@ app.use(function(req, res, next) {
 });
 
 app.get('/', function (req, res) {	
-	res.render('index', { title: 'A Southern Konkani Vocabulary Collection', heading: 'A Southern Konkani Vocabulary Collection'});
+	res.render('index', { title: 'A Southern Konkani Vocabulary Collection', heading: 'A Southern Konkani Vocabulary Collection', heading_konkani: 'दक्षिण कोंकणी उतरावळि',});
 })
 
-app.get('/about|/suggest|/contact', function (req, res) {	
-	res.render('contact', { title: 'A Southern Konkani Vocabulary Collection', heading: 'A Southern Konkani Vocabulary Collection'});
+app.get('/about', function (req, res) {	
+    res.render('about', { title: 'A Southern Konkani Vocabulary Collection', heading: 'A Southern Konkani Vocabulary Collection', heading_konkani: 'दक्षिण कोंकणी उतरावळि',});
+})
+
+app.get('/contact', function (req, res) { 
+    res.render('contact', { title: 'A Southern Konkani Vocabulary Collection', heading: 'A Southern Konkani Vocabulary Collection', heading_konkani: 'दक्षिण कोंकणी उतरावळि',});
+})
+
+app.get('/suggest', function (req, res) { 
+    res.render('suggest', { title: 'A Southern Konkani Vocabulary Collection', heading: 'A Southern Konkani Vocabulary Collection', heading_konkani: 'दक्षिण कोंकणी उतरावळि',});
 })
 
 app.get('/contents', function (req, res) {   
-    res.render('contents', { title: 'A Southern Konkani Vocabulary Collection', heading: 'A Southern Konkani Vocabulary Collection'});
+    res.render('contents', { title: 'A Southern Konkani Vocabulary Collection', heading: 'A Southern Konkani Vocabulary Collection', heading_konkani: 'दक्षिण कोंकणी उतरावळि',});
 })
 
 function unique_entries_by_column(entries, column) {
@@ -209,6 +217,7 @@ app.get("/words/:word", function(req, res) {
                     res.render('words',
                         { title: 'A Southern Konkani Vocabulary Collection',
                         heading: 'A Southern Konkani Vocabulary Collection',
+                        heading_konkani: 'दक्षिण कोंकणी उतरावळि',
                         query: word,
                         words: main_result.entries,
                         related_words: related_entries,
@@ -220,6 +229,7 @@ app.get("/words/:word", function(req, res) {
             res.render('words',
                     { title: 'A Southern Konkani Vocabulary Collection',
                     heading: 'A Southern Konkani Vocabulary Collection',
+                    heading_konkani: 'दक्षिण कोंकणी उतरावळि',
                     query: word,
                     words: [],
                     related_words: [],
@@ -239,18 +249,21 @@ app.get("/category/:category", function(req, res) {
 
     // Same subcategory words
     var samesubcat_query = new azure.TableQuery()
-                .select(['english_word', 'konkani_word', 'subcategory'])
+                .select(['konkani_word', 'subcategory'])
                 .where('subcategory eq ?', category);
 
     var samesubcat_entries = [];
-    tableService.queryEntities('dictengtokon', samesubcat_query, null, function(error, result, response) {
+    tableService.queryEntities('dictkontoeng', samesubcat_query, null, function(error, result, response) {
         if(!error && result.entries.length > 0) {
-            samesubcat_entries = unique_entries_by_column(result.entries, 'english_word');
+            samesubcat_entries = unique_entries_by_column(result.entries, 'konkani_word');
+
+            // TODO: Sort words by konkani
         }
 
         res.render('subcategory',
-            { title: 'A Southern Konkani Vocabulary Collection',
+            { title: 'A Southern Konkani Vocabulary Collection - दक्षिण कोंकणी उतरावळि',
             heading: 'A Southern Konkani Vocabulary Collection',
+            heading_konkani: 'दक्षिण कोंकणी उतरावळि',
             same_subcat_words: samesubcat_entries
         });
     });

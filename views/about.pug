@@ -1,20 +1,22 @@
 extends layout.pug   
 
 block content
-    div.contents-container
-        div.flex-inner-p25
-            if same_subcat_words[0]
-                h3 Words in #[span.highlight #{same_subcat_words[0].subcategory._}]
-            else
-                h2 Work in progress. Please check again later.
-            div
-                ol
-                    each word in same_subcat_words
-                        li
-                            if word.konkani_word
-                                if word.konkani_word._
-                                    a(href='/words/'+ word.konkani_word._.replace(/ /g, '+')) #{word.konkani_word._}
+    div.flex-container
+        div.row.narrow-width
+            h2 About
+            div This tool is a humble attempt at collating a repository of Konkani words spoken in Kerala. It was collected by #[b Surya Ashok] by consulting a large number of people in her circles.
 
+        div.narrow-width
+            h2 Statistics
+            div.counter
+                div.flex-item
+                    div.counter-1
+                        p.counter-count 10394
+                        p.counter-1-p Konkani Words
+                div.flex-item
+                    div.counter-2
+                        p.counter-count 12355
+                            p.counter-2-p English Words
 
     nav.fixed-bottom.navbar.navbar-expand-md.navbar-light.bg-light(style="background-color: #e3f2fd;")
         button.navbar-toggler(type="button", data-toggle="collapse", data-target="#navbarToggler", aria-controls="navbarToggler", aria-expanded="false", aria-label="Toggle navigation")
@@ -29,6 +31,6 @@ block content
                 li.nav-item
                     a.nav-link(href="/suggest") Suggest
                 li.nav-item
-                    a.nav-link(href="/about") About    
+                    a.nav-link.active(href="/about") About    
                 li.nav-item
                     a.nav-link(href="/contact") Contact

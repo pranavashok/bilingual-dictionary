@@ -27,9 +27,7 @@ li a:hover {
 
 h1 {
   text-align: center;
-  font-size: 3rem;
-  margin-bottom: 1.3em;
-  margin-top: 1.3em;
+  font-size: 2.5rem;
   font-weight: bolder;
 }
 
@@ -57,7 +55,10 @@ h1 a:hover {
 }
 
 h2 {
-  font-size: 1.1em;
+  font-size:2rem;
+  font-weight:600;
+  margin-bottom:2rem;
+  margin-top:2rem;
 }
 
 h3 {
@@ -100,10 +101,22 @@ h3 {
   /*align-self: center;*/
   display:flex;
   justify-content:center;
-  align-items:center;
+  align-items:left;
   margin: 0 1rem 1rem 0;
   position: relative;
   flex-direction: column;
+  padding-bottom: 2rem;
+}
+
+.flex-inner-p25 {
+  padding-left: 25%;
+  display:flex;
+  justify-content:center;
+  align-items:left;
+  margin: 0 1rem 1rem 0;
+  position: relative;
+  flex-direction: column;
+  padding-bottom: 2rem;
 }
 
 .flex-reverse {
@@ -288,6 +301,8 @@ nav .navbar-brand {
     transition: margin-left .5s;
     padding-left: 5%;
     padding-right: 5%;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
 }
 
 /* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
@@ -371,9 +386,11 @@ nav .navbar-brand {
 
 ul.contents-accordion {
     list-style: none;
-    padding-left: 25%;
+    list-style-type: none;
+    padding-left: 0;
   
     .inner {
+        list-style-type: none;
         padding-left: 1em;
         overflow: hidden;
         display: none;
@@ -385,6 +402,7 @@ ul.contents-accordion {
   
     li {
         margin: .5em 0;
+        list-style-image: none;
       
         a.toggle {
             width: 100%;
@@ -402,6 +420,57 @@ ul.contents-accordion {
     }
 }
 
+ul.contents-accordion > li {
+  font-weight: 600;
+  font-size: 1.75rem;
+}
+
+ul.contents-accordion > li.expandable > ul > li.expandable {
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+ul.contents-accordion > li.expandable > ul > li.expandable > ul > li.expandable {
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.contents-accordion li:not(.expandable) {
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+
+ul.contents-accordion li.expandable:before {
+  padding:5px;
+  list-style:none;
+  content:  "+";
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+ul.contents-accordion > li.expandable:before {
+  padding:5px;
+  list-style:none;
+  content:  "+";
+  font-weight: 600;
+  font-size: 2rem;
+}
+
+ul.contents-accordion > li.expandable > ul > li.expandable:before {
+  padding:5px;
+  list-style:none;
+  content:  "+";
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+.contents-accordion li:not(.expandable):before {
+  padding:10px;
+  list-style:none;
+  content:  " ";
+  font-size: 1.1rem;
+}
+
 .contents-container {
     height: 100%;
     display: -webkit-box;
@@ -412,4 +481,71 @@ ul.contents-accordion {
     flex-flow: column wrap;
     align-items: left;
     justify-content: left;
+    padding-bottom: 4rem;
 }
+
+.category-container {
+    height: 100%;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    flex-flow: column wrap;
+    align-items: center;
+    justify-content: left;
+    padding-bottom: 4rem;
+}
+
+.suggest-form {
+  margin-top: 5rem;
+  font-size: 1.2rem;
+  width: 100%;
+}
+
+/* Counter */
+
+.counter
+{
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40%;
+    flex-wrap: wrap;
+    flex-flow: row;
+}
+
+.counter-1, .counter-2
+{
+    margin-right: 20px;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+}
+
+.counter-count
+{
+    font-size: 18px;
+    background-color: #00b3e7;
+    border-radius: 50%;
+    position: relative;
+    color: #ffffff;
+    text-align: center;
+    line-height: 92px;
+    width: 92px;
+    height: 92px;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    -ms-border-radius: 50%;
+    -o-border-radius: 50%;
+    display: inline-block;
+}
+
+.counter-1-p,.counter-2-p
+{
+    font-size: 1rem;
+    color: #000000;
+}
+
+/* End counter */
