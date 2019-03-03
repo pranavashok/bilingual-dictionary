@@ -26,7 +26,8 @@ block content
 
     div#specific-results
         div.flex-inner
-            h3 Meanings of #[span.highlight #{query}]
+            h3 Meanings of 
+            span.highlight #{query}
             div
                 ol
                     each word in words
@@ -84,7 +85,8 @@ block content
                                         span= json.explanation
                                         br
         div.flex-inner
-            h3 Related matches for #[span.highlight #{query}]
+            h3 Related matches for 
+            span.highlight #{query}
             div
                 ol
                     each word in related_words
@@ -92,7 +94,9 @@ block content
                             a(href='/words/'+ word.ParentWord._.replace(/ /g, '+')) #{word.ParentWord._}
         div.flex-inner
             if same_subcat_words[0]
-                h3 Other words in #[span.highlight #{same_subcat_words[0].subcategory._}]
+                h3 Other words in 
+                span.highlight #{same_subcat_words[0].english_subcategory._}
+                span.highlight #{same_subcat_words[0].konkani_subcategory._}
             div
                 ol
                     each word in same_subcat_words

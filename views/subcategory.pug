@@ -4,7 +4,8 @@ block content
     div.contents-container
         div.flex-inner-p25
             if same_subcat_words[0]
-                h3 Words in #[span.highlight #{same_subcat_words[0].subcategory._}]
+                h3 #[span.highlight #{same_subcat_words[0].english_subcategory._}]
+                h4 #[span.highlight #{same_subcat_words[0].konkani_subcategory._}]
             else
                 h2 Work in progress. Please check again later.
             div

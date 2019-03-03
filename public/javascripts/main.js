@@ -25,6 +25,8 @@ $(function(){
 
     // collapseContents();
     $('.contents-accordion').find(".inner").slideUp(600);
+
+    $('[data-toggle="tooltip"]').tooltip();
     
     var currentRequest = null;
 

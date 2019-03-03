@@ -42,7 +42,6 @@ app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 app.get('/', function (req, res) {	
-    console.log(process.env)
 	res.render('index', { title: 'A Southern Konkani Vocabulary Collection', heading: 'A Southern Konkani Vocabulary Collection', heading_konkani: 'दक्षिण कोंकणी उतरावळि',});
 })
 
@@ -146,7 +145,7 @@ app.get('/searching', function(req, res) {
     }
 
 	// If typing in English, then
-	if (search_param.search(/^([x00-\xFF]+)/) != -1) {
+	if (search_param.search(/^([\x00-\xFF]+)/) != -1) {
 		primary_column = "english_word";
 		secondary_column = "konkani_word";
 		primary_table = config.db1;
@@ -222,7 +221,7 @@ app.get('/searching', function(req, res) {
 app.get("/words/:word", function(req, res) {
 	word = req.params.word.replace(/\+/g, ' ');
 	// If typing in English, then
-	if (word.search(/^([x00-\xFF]+)/) != -1) {
+	if (word.search(/^([\x00-\xFF]+)/) != -1) {
 		primary_column = "english_word";
 		secondary_column = "konkani_word";
 		primary_table = "dictengtokon";
@@ -241,7 +240,7 @@ app.get("/words/:word", function(req, res) {
 	// TODO: Related words, same subcategory words
 
 	var exact_word_query = new azure.TableQuery()
-					.select([secondary_column, 'part_of_speech', 'subcategory', 'more_details'])
+					.select([secondary_column, 'part_of_speech', 'english_subcategory', 'konkani_subcategory', 'more_details'])
 					.where("PartitionKey ge ? and PartitionKey lt ? and " + primary_column + " eq ?", word.toLowerCase(), next_word(word).toLowerCase(), word.toLowerCase());
 
     var containingwords_query = new azure.TableQuery()
@@ -261,8 +260,8 @@ app.get("/words/:word", function(req, res) {
 
                 // Same subcategory words
                 var samesubcat_query = new azure.TableQuery()
-                            .select([primary_column, 'subcategory'])
-                            .where('subcategory eq ?', main_result.entries[0].subcategory._);
+                            .select([primary_column, 'english_subcategory', 'konkani_subcategory'])
+                            .where('english_subcategory eq ?', main_result.entries[0].english_subcategory._);
 
                 var samesubcat_entries = [];
                 tableService.queryEntities(primary_table, samesubcat_query, null, function(error, result, response) {
@@ -305,8 +304,8 @@ app.get("/category/:category", function(req, res) {
 
     // Same subcategory words
     var samesubcat_query = new azure.TableQuery()
-                .select(['konkani_word', 'subcategory'])
-                .where('subcategory eq ?', category);
+                .select(['konkani_word', 'english_subcategory', 'konkani_subcategory'])
+                .where('english_subcategory eq ?', category);
 
     var samesubcat_entries = [];
     tableService.queryEntities('dictkontoeng', samesubcat_query, null, function(error, result, response) {
