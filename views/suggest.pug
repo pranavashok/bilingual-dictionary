@@ -1,6 +1,34 @@
 extends layout.pug   
 
 block content
+    div#successful-submission.modal.fade(abindex="-1", role="dialog", aria-labelledby="alertModal", aria-hidden="true")
+        div.modal-dialog
+            div.modal-content
+                div.modal-header
+                    h5.modal-title Submitted successfully
+                    button(type="button", class="close", data-dismiss="modal", aria-label="Close")
+                        span(aria-hidden="true") &times;
+                div.modal-body
+                    span(style="font-size:1rem") We thank you for your kind contribution.
+                div.modal-footer
+                    button#home-button.btn.btn-primary(type="button", data-dismiss="modal") Back to home
+    button.btn.btn-primary.btn-lg#success-modal-trigger(data-toggle="modal", data-target="#successful-submission")
+
+    div#failed-submission.modal.fade(abindex="-1", role="dialog", aria-labelledby="alertModal", aria-hidden="true")
+        div.modal-dialog
+            div.modal-content
+                div.modal-header
+                    h5.modal-title Submission failed
+                    button(type="button", class="close", data-dismiss="modal", aria-label="Close")
+                        span(aria-hidden="true") &times;
+                div.modal-body
+                    span(style="font-size:1rem") We were unable to accept your suggestion due to technical problems. Please try again or else send a mail to #[a(href="mailto:mail@suryaashok.in") mail@suryaashok.in.]
+                div.modal-footer
+                    button#home-button.btn.btn-primary(type="button", data-dismiss="modal") Back to home
+                    button#retry-button.btn.btn-primary(type="button", data-dismiss="modal") Retry by mail
+
+    button.btn.btn-primary.btn-lg#failure-modal-trigger(data-toggle="modal", data-target="#failed-submission")
+
     div.flex-container
         div.row.narrow-width
             h2 Suggest
@@ -9,13 +37,13 @@ block content
             form.suggest-form(method='POST' action='/submit-suggestion')
                 div.form-group
                     label(for='name') Name (optional)
-                    input.form-control(type='text', placeholder='Enter your name here' name='name')
+                    input.form-control(id="name", type='text', placeholder='Enter your name here' name='name')
                 div.form-group
                     label(for='email') Email (optional)
-                    input.form-control(type='email', placeholder='name@email.com' name='email')
+                    input.form-control(id="email", type='email', placeholder='name@email.com' name='email')
                 div.form-group
                     label(for='suggestion') Suggestion
-                    textarea.form-control(rows=6, placeholder='Type your suggestion here' name='suggestion')
+                    textarea.form-control(id="suggestion", rows=6, placeholder='Type your suggestion here' name='suggestion')
                 button.btn.btn-primary(type='submit') Submit
 
     nav.fixed-bottom.navbar.navbar-expand-md.navbar-light.bg-light(style="background-color: #e3f2fd;")

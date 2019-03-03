@@ -425,20 +425,25 @@ ul.contents-accordion > li {
   font-size: 1.75rem;
 }
 
-ul.contents-accordion > li.expandable > ul > li.expandable {
+ul.contents-accordion > li > ul > li {
   font-weight: 600;
   font-size: 1.5rem;
 }
 
-ul.contents-accordion > li.expandable > ul > li.expandable > ul > li.expandable {
+ul.contents-accordion > li > ul > li > ul > li {
   font-weight: 600;
   font-size: 1.25rem;
 }
 
-.contents-accordion li:not(.expandable) {
-  font-size: 1.1rem;
+ul.contents-accordion > li > ul > li > ul > li > ul > li {
   font-weight: 400;
+  font-size: 1.1rem;
 }
+
+/*.contents-accordion li:not(.expandable) {
+  font-size: 1.25rem;
+  font-weight: 600;
+}*/
 
 ul.contents-accordion li.expandable:before {
   padding:5px;
@@ -499,8 +504,13 @@ ul.contents-accordion > li.expandable > ul > li.expandable:before {
 
 .suggest-form {
   margin-top: 5rem;
+  margin-bottom: 5rem;
   font-size: 1.2rem;
   width: 100%;
+}
+
+#success-modal-trigger, #failure-modal-trigger {
+  display: none;
 }
 
 /* Counter */

@@ -6,6 +6,13 @@ var path = require('path');
 
 var azure = require('azure-storage');
 
+// For mailing
+var nodemailer = require('nodemailer');
+var dateTime = require('node-datetime');
+var bodyParser = require('body-parser');
+
+// TODO: express-recaptcha
+
 var config = {
    storageAccount: process.env.AZURE_STORAGE_ACCOUNT,
    storageAccessKey: process.env.AZURE_STORAGE_ACCESS_KEY,
@@ -31,7 +38,11 @@ app.use(function(req, res, next) {
 	next();
 });
 
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+
 app.get('/', function (req, res) {	
+    console.log(process.env)
 	res.render('index', { title: 'A Southern Konkani Vocabulary Collection', heading: 'A Southern Konkani Vocabulary Collection', heading_konkani: 'दक्षिण कोंकणी उतरावळि',});
 })
 
@@ -49,6 +60,51 @@ app.get('/suggest', function (req, res) {
 
 app.get('/contents', function (req, res) {   
     res.render('contents', { title: 'A Southern Konkani Vocabulary Collection', heading: 'A Southern Konkani Vocabulary Collection', heading_konkani: 'दक्षिण कोंकणी उतरावळि',});
+})
+
+app.post('/submit-suggestion', function(req, res) { 
+    // create reusable transporter object using the default SMTP transport
+    let transporter = nodemailer.createTransport({
+        service: 'Zoho',
+        host: this.service,
+        port: 587,
+        secureConnection: false, // use SSL
+        auth: {
+            user: process.env.SMTP_USERNAME,
+            pass: process.env.SMTP_PASSWORD
+        },
+        tls:{
+            ciphers:'SSLv3'
+        }
+    });
+
+    var dt = dateTime.create();
+    var formatted = dt.format('Y-m-d H:M:S');
+
+    var name = req.body.name;
+    var email = req.body.email;
+    var suggestion = req.body.suggestion;
+
+    // setup e-mail data with unicode symbols
+    var mailOptions = {
+        from: 'dict@suryaashok.in', // sender address
+        to: 'mail@suryaashok.in', // list of receivers
+        subject: 'Suggestion submitted on ' + formatted, // Subject line
+        text: 'Name: ' + name + '; Email: ' + email + 
+              '; Suggestion/feedback: ' + suggestion, // plaintext body
+        html: '<strong>Name: </strong>' + name + '<br /><br />' +
+              '<strong>Email: </strong>' + email + '<br /><br />' +
+              '<strong>Suggestion/feedback</strong><br />' + suggestion + '<br />' // html body
+    };
+     
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log(error);
+            return res.send(-1);
+        }
+        console.log('Message %s sent: %s', info.messageId, info.response);
+        res.send(info.response);
+    });
 })
 
 function unique_entries_by_column(entries, column) {
