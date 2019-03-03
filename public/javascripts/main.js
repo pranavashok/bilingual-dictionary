@@ -111,7 +111,7 @@ $(function(){
 
     $('form.suggest-form .btn-primary').click(function(e) {
         e.preventDefault();
-        if ($("div.form-group > input#suggestion").val() === '') {
+        if ($("div.form-group > textarea#suggestion").val() === '') {
             $("#suggestion").addClass("is-invalid");
             return false;
         } else {
@@ -123,7 +123,7 @@ $(function(){
             timeout: 10000,
             data: { name: $("div.form-group > input#name").val(),
                     email: $("div.form-group > input#email").val(),
-                    suggestion: $("div.form-group > input#suggestion").val() 
+                    suggestion: $("div.form-group > textarea#suggestion").val() 
                 },
             beforeSend: function(jqXHR, settings) {
                 $('form.suggest-form .btn-primary').html("Processing...");
