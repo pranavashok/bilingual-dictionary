@@ -34,9 +34,9 @@ block content
                         li
                             - var is_konkani = true; if (query.search(/^([x00-\xFF]+)/) != -1) { is_konkani = false; }
                             if is_konkani
-                                a(href='/words/' + word.english_word._.replace(/ /g, '+')) #{word.english_word._}
+                                a(href='/words/' + word.english_word._.replace(/ /g, '+'), data-toggle="tooltip", data-placement="right", data-offset="0 10px", title=word.english_subcategory._) #{word.english_word._}
                             else
-                                a(href='/words/' + word.konkani_word._.replace(/ /g, '+')) #{word.konkani_word._}
+                                a(href='/words/' + word.konkani_word._.replace(/ /g, '+'), data-toggle="tooltip", data-placement="right", data-offset="0 10px", title=word.konkani_subcategory._) #{word.konkani_word._}
                             if word.part_of_speech._ != ""
                                 span &nbsp; (#{word.part_of_speech._}.)
                             if word.more_details._ != ""
