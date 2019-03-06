@@ -128,6 +128,21 @@ function unique_words_by_column(entries, column) {
     return unique_words;
 }
 
+function sort_entries_by_column(entries, column) {
+    var ordered = [];
+    entries.sort(function(e1, e2) {
+        if (e1.hasOwnProperty(column) && e2.hasOwnProperty(column)) {
+            return e1[column]._ - e2[column]._;
+        }
+        else {
+            return 0;
+        }
+    }).forEach(function(row) {
+        ordered.push(row);
+    });
+    return ordered;
+}
+
 // Next word in dict order
 function next_word(word) {
 	length = word.length - 1;
@@ -260,13 +275,14 @@ app.get("/words/:word", function(req, res) {
 
                 // Same subcategory words
                 var samesubcat_query = new azure.TableQuery()
-                            .select([primary_column, 'english_subcategory', 'konkani_subcategory'])
+                            .select([primary_column, 'english_subcategory', 'konkani_subcategory', 'weight'])
                             .where('english_subcategory eq ?', main_result.entries[0].english_subcategory._);
 
                 var samesubcat_entries = [];
                 tableService.queryEntities(primary_table, samesubcat_query, null, function(error, result, response) {
                     if(!error && result.entries.length > 0) {
                         samesubcat_entries = unique_entries_by_column(result.entries, primary_column);
+                        samesubcat_entries = sort_entries_by_column(samesubcat_entries, "weight");
                     }
 
                     res.render('words',
