@@ -92,24 +92,26 @@ block content
                     each word in related_words
                         li 
                             a(href='/words/'+ word.ParentWord._.replace(/ /g, '+')) #{word.ParentWord._}
+        
         div.flex-inner
-            if same_subcat_words[0]
-                h3 Other words in 
-                span.highlight #{same_subcat_words[0].english_subcategory._}
-                span.highlight #{same_subcat_words[0].konkani_subcategory._}
-            div
-                ol
-                    each word in same_subcat_words
-                        li
-                            - var is_konkani = true; if (query.search(/^([x00-\xFF]+)/) != -1) { is_konkani = false; }
-                            if is_konkani
-                                if word.konkani_word
-                                    if word.konkani_word._
-                                        a(href='/words/'+ word.konkani_word._.replace(/ /g, '+')) #{word.konkani_word._}
-                            else
-                                if word.english_word
-                                    if word.english_word._
-                                        a(href='/words/'+ word.english_word._.replace(/ /g, '+')) #{word.english_word._}
+            each cat in same_subcat_words
+                if cat[0]
+                    h3 Other words in 
+                    span.highlight #{cat[0].english_subcategory._}
+                    span.highlight #{cat[0].konkani_subcategory._}
+                div
+                    ol
+                        each word in cat
+                            li
+                                - var is_konkani = true; if (query.search(/^([x00-\xFF]+)/) != -1) { is_konkani = false; }
+                                if is_konkani
+                                    if word.konkani_word
+                                        if word.konkani_word._
+                                            a(href='/words/'+ word.konkani_word._.replace(/ /g, '+')) #{word.konkani_word._}
+                                else
+                                    if word.english_word
+                                        if word.english_word._
+                                            a(href='/words/'+ word.english_word._.replace(/ /g, '+')) #{word.english_word._}
 
     nav.fixed-bottom.navbar.navbar-expand-md.navbar-light.bg-light(style="background-color: #e3f2fd;")
         button.navbar-toggler(type="button", data-toggle="collapse", data-target="#navbarToggler", aria-controls="navbarToggler", aria-expanded="false", aria-label="Toggle navigation")

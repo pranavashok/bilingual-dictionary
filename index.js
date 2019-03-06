@@ -106,6 +106,22 @@ app.post('/submit-suggestion', function(req, res) {
     });
 })
 
+function group_by_subcat(entries) {
+    var keys = []
+    var values = []
+    entries.forEach(function(row) {
+        index = keys.indexOf(row.english_subcategory._)
+        if (index >= 0) {
+            values[index].push(row);
+        } else {
+            keys.push(row.english_subcategory._)
+            values.push(new Array());
+            values[values.length - 1].push(row);
+        }
+    });
+    return values;
+}
+
 function unique_entries_by_column(entries, column) {
 	unique_entries = [];
 	unique_words = [];
@@ -274,15 +290,24 @@ app.get("/words/:word", function(req, res) {
                 }
 
                 // Same subcategory words
+                constraint_string = [];
+                constraints = [];
+                main_result.entries.forEach(function(row) {
+                    constraint_string.push("english_subcategory eq ?");
+                    constraints.push(row.english_subcategory._.replace("'", "''"));
+                });
                 var samesubcat_query = new azure.TableQuery()
                             .select([primary_column, 'english_subcategory', 'konkani_subcategory', 'weight'])
-                            .where('english_subcategory eq ?', main_result.entries[0].english_subcategory._);
+                            .where(constraint_string.join(" or "), ...constraints);
 
                 var samesubcat_entries = [];
                 tableService.queryEntities(primary_table, samesubcat_query, null, function(error, result, response) {
                     if(!error && result.entries.length > 0) {
-                        samesubcat_entries = unique_entries_by_column(result.entries, primary_column);
-                        samesubcat_entries = sort_entries_by_column(samesubcat_entries, "weight");
+                        all_subcat_entries = group_by_subcat(result.entries);
+                        all_subcat_entries.forEach(function(list) {
+                            list = unique_entries_by_column(list, primary_column);
+                            list = sort_entries_by_column(list, "weight");
+                        });
                     }
 
                     res.render('words',
@@ -292,7 +317,7 @@ app.get("/words/:word", function(req, res) {
                         query: word,
                         words: main_result.entries,
                         related_words: related_entries,
-                        same_subcat_words: samesubcat_entries
+                        same_subcat_words: all_subcat_entries
                     });
                 });
             });
