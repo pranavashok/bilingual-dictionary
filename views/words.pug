@@ -84,6 +84,8 @@ block content
                                     if json.explanation
                                         span= json.explanation
                                         br
+                                    if json.interpretation
+                                        span Interpretation: #{json.interpretation}
         div.flex-inner
             h3 Related matches for 
             span.highlight #{query}
