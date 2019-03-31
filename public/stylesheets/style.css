@@ -108,6 +108,17 @@ h3 {
   padding-bottom: 2rem;
 }
 
+.flex-inner-w25 {
+  width: 25vw;
+  display:flex;
+  justify-content:center;
+  align-items:left;
+  margin: 0 1rem 1rem 0;
+  position: relative;
+  flex-direction: column;
+  padding-bottom: 2rem;
+}
+
 .flex-inner-p25 {
   padding-left: 25%;
   display:flex;
