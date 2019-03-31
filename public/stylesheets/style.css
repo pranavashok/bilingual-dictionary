@@ -570,3 +570,7 @@ ul.contents-accordion > li.expandable > ul > li.expandable:before {
 }
 
 /* End counter */
+
+#answer {
+  display: none;
+}

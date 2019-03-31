@@ -165,6 +165,8 @@ $(function(){
         e.preventDefault();
         window.open("mailto:mail@suryaashok.in?subject=Suggestion%20via%20website&body=" + encodeURI($(".suggest-form #suggestion").val()), '_blank');
     });
+
+    $('#showtoggle').click(function(){ $('#answer').toggle(); return false; });
 });
 
 function onSceenKeyboard() {

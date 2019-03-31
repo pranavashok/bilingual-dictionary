@@ -86,6 +86,9 @@ block content
                                         br
                                     if json.interpretation
                                         span Interpretation: #{json.interpretation}
+                                    if json.answer
+                                        a(id='showtoggle', href='#') Show/hide answer
+                                        div#answer #{json.answer} (#{json.english_answer})
         div.flex-inner-w25
             h3 Related matches for 
             span.highlight #{query}
