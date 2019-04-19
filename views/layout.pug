@@ -17,6 +17,24 @@ html
         meta(charset="utf-8")
         meta(name="viewport", content="width=device-width, initial-scale=1, shrink-to-fit=no")
     body(onload="pramukhIME.addKeyboard(PramukhIndic,'konkani')")
+        nav.fixed-top.navbar.navbar-expand-md.navbar-light.bg-light(style="background-color: #e3f2fd;")
+            span
+                button.navbar-toggler(type="button", data-toggle="collapse", data-target="#navbarToggler", aria-controls="navbarToggler", aria-expanded="false", aria-label="Toggle navigation")
+                    span.navbar-toggler-icon
+                span.navtext Menu
+            div.collapse.navbar-collapse(id="navbarToggler")
+                a.navbar-brand(href="/", style="color: #000; font-weight: 500;") दक्षिण कोंकणी उतरावळि
+                ul.navbar-nav.mr-auto
+                    li.nav-item
+                        a.nav-link.active(href="/") Search
+                    li.nav-item
+                        a.nav-link(href="/contents") Contents
+                    li.nav-item
+                        a.nav-link(href="/suggest") Suggest
+                    li.nav-item
+                        a.nav-link(href="/about") About    
+                    li.nav-item
+                        a.nav-link(href="/contact") Contact
         div#main
             h1 #[a(href="/") #{heading_konkani}]
             h1 #[a(href="/") #{heading}]

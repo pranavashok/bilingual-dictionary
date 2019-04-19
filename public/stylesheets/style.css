@@ -1,8 +1,23 @@
 body {
   font-size: 24px;
+  font-size: 1.5rem;
   margin: 0;
   padding: 0;
   font-family: arial, Helvetica, sans-serif;
+}
+
+@media only screen and (max-width: 768px) {
+  body {
+    font-size: 24px;
+    font-size: 1rem;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  body {
+    font-size: 12px;
+    font-size: 1rem;
+  }
 }
 
 a {
@@ -102,10 +117,10 @@ h3 {
   display:flex;
   justify-content:center;
   align-items:left;
-  margin: 0 1rem 1rem 0;
+  margin: 0 1rem 0rem 0;
   position: relative;
   flex-direction: column;
-  padding-bottom: 2rem;
+  /*padding-bottom: 2rem;*/
 }
 
 .flex-inner-w25 {
@@ -117,6 +132,13 @@ h3 {
   position: relative;
   flex-direction: column;
   padding-bottom: 2rem;
+}
+
+@media only screen and (max-width: 480px) {
+  .flex-inner-w25 {
+    width: 90vw;
+    margin: 0 0 0 1rem;
+  }
 }
 
 .flex-inner-p25 {
@@ -271,7 +293,10 @@ nav .navbar-brand {
   display: flex;
   align-items: flex-start;
   justify-content: space-evenly;
+  flex-wrap: wrap;
 }
+
+
 
 .results-table {
   width: 100%;
@@ -307,12 +332,25 @@ nav .navbar-brand {
 
 /* Sidebar was here */
 
+.navtext {
+  font-size: 1.5rem;
+  margin-left: 1rem;
+  color: #666666;
+  display: none;
+}
+
+@media screen and (max-width: 768px) {
+  .navtext {
+    display: inline;
+  }
+}
+
 /* Style page content - use this if you want to push the page content to the right when you open the side navigation */
 #main {
     transition: margin-left .5s;
     padding-left: 5%;
     padding-right: 5%;
-    margin-top: 2rem;
+    margin-top: 5rem;
     margin-bottom: 2rem;
 }
 
@@ -390,6 +428,9 @@ nav .navbar-brand {
       font-size: 0.5rem;
       height: 1.7rem;
       padding-top: 0;
+  }
+  .btn-group {
+    padding-bottom: 1rem;
   }
 }
 
