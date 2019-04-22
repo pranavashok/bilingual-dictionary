@@ -383,7 +383,6 @@ app.get("/words/:word", function(req, res) {
             tableService.queryEntities(suggest_table, containingwords_query, null, function(error, result, response) {
                 if(!error && result.entries.length > 0) {
                     related_entries = unique_entries_by_column(result.entries, 'ParentWord');
-                    console.log("Related entries", related_entries);
                     related_entries = related_entries.filter(x => x.ParentWord._ !== word);
                 }
 

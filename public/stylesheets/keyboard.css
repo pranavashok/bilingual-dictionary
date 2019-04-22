@@ -12,13 +12,53 @@ footer a:hover {
 	color: #ddd;
 	text-decoration: underline;
 }
+
 .content {
 	flex: 1;
 }
+
 .keyboard {
 	display: relative;
 	z-index: 10;
+	font-size: 1.5rem;
 }
+
+@media (max-width: 991.98px) { 
+	.keyboard {
+		font-size: 1.25rem;
+	}
+}
+
+@media (max-width: 767.98px) { 
+	.keyboard {
+		font-size: 1rem;
+	}
+}
+
+@media (max-width: 575.98px) { 
+	.keyboard {
+		font-size: 0.8rem;
+	}
+}
+
+@media (max-width: 450px) { 
+	.keyboard {
+		font-size: 0.7rem;
+	}
+}
+
+@media (max-width: 390px) { 
+	.keyboard {
+		font-size: 0.6rem;
+	}
+}
+
+@media (max-width: 340px) { 
+	.keyboard {
+		font-size: 0.5rem;
+	}
+}
+
 .KeyboardRow {
 	text-align: center;
 }
