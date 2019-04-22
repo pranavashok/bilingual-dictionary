@@ -202,6 +202,8 @@ function unique_entries_by_column(entries, column) {
 		if (!unique_words.includes(row[column]._)) {
 			unique_entries.push(row);
             unique_words.push(row[column]._);
+            // console.log("Adding ", row[column]);
+            // console.log("Unique words", unique_words);
 		}
 	}, this);
 	return unique_entries;
@@ -381,6 +383,8 @@ app.get("/words/:word", function(req, res) {
             tableService.queryEntities(suggest_table, containingwords_query, null, function(error, result, response) {
                 if(!error && result.entries.length > 0) {
                     related_entries = unique_entries_by_column(result.entries, 'ParentWord');
+                    console.log("Related entries", related_entries);
+                    related_entries = related_entries.filter(x => x.ParentWord._ !== word);
                 }
 
                 // Same subcategory words
@@ -398,10 +402,10 @@ app.get("/words/:word", function(req, res) {
                 tableService.queryEntities(primary_table, samesubcat_query, null, function(error, result, response) {
                     if(!error && result.entries.length > 0) {
                         all_subcat_entries = group_by_subcat(result.entries);
-                        all_subcat_entries.forEach(function(list) {
+                        all_subcat_entries.forEach(function(list, index) {
                             list = unique_entries_by_column(list, primary_column);
-                            list = sort_entries_by_column(list, "weight");
-                        });
+                            all_subcat_entries[index] = sort_entries_by_column(list, "weight");
+                        }, all_subcat_entries);
                     }
 
                     res.render('words',

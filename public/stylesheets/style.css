@@ -6,7 +6,7 @@ body {
   font-family: arial, Helvetica, sans-serif;
 }
 
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 767.98px) {
   body {
     font-size: 24px;
     font-size: 1rem;
@@ -39,13 +39,13 @@ h1 {
   font-weight: bolder;
 }
 
-@media only screen and (max-width: 1192px) {
+@media only screen and (max-width: 1199.98px) {
    h1 { 
       font-size: 2.5rem; 
    }
 }
 
-@media only screen and (max-width: 480px) {
+@media only screen and (max-width: 575.98px) {
    h1 { 
       font-size: 1.5rem; 
    }
@@ -128,7 +128,7 @@ h3 {
   padding-bottom: 2rem;
 }
 
-@media only screen and (max-width: 480px) {
+@media only screen and (max-width: 575.98px) {
   .flex-inner-w25 {
     width: 90vw;
     margin: 0 0 0 1rem;
@@ -224,24 +224,6 @@ span.category {
   font-size: 1rem;
 }
 
-@include media-breakpoint-up(sm) {
-  .small {
-    font-size: 1.2rem;
-  }
-}
-
-@include media-breakpoint-up(md) {
-  .small {
-    font-size: 1.4rem;
-  }
-}
-
-@include media-breakpoint-up(lg) {
-  .small {
-    font-size: 1.6rem;
-  }
-}
-
 .more-details {
   font-size: 0.7em;
   color: #4c4c4c;
@@ -282,7 +264,7 @@ span.category {
   font-size: 1.25em;
 }
 
-@media only screen and (max-width: 716px) {
+@media only screen and (max-width: 767.98px) {
   #search { 
     width: 30rem;
     height: 2.1em;
@@ -296,7 +278,7 @@ span.category {
   }
 }
 
-@media only screen and (max-width: 520px) {
+@media only screen and (max-width: 575.98px) {
    #search { 
       width: 90vw;
       height: 2.5em;
@@ -384,7 +366,7 @@ nav .navbar-brand {
   display: none;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 767.98px) {
   .navtext {
     display: inline;
   }
@@ -449,7 +431,7 @@ nav .navbar-brand {
   margin-top: 0;
 }
 
-@media only screen and (max-width:716px) {
+@media only screen and (max-width: 767.98px) {
   .btn-secondary {
       font-size: 0.9rem;
       height: 2.2rem;
@@ -466,7 +448,7 @@ nav .navbar-brand {
   }
 }
 
-@media only screen and (max-width: 480px) {
+@media only screen and (max-width: 575.98px) {
   .btn-secondary {
       font-size: 0.7rem;
       height: 1.7rem;
