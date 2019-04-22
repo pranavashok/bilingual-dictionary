@@ -94,8 +94,11 @@ $(function(){
             $this.next().removeClass('show');
             $this.next().slideUp(350);
         } else {
-            $this.parent().parent().find('li .inner').removeClass('show');
-            $this.parent().parent().find('li .inner').slideUp(350);
+            // Enable the following two lines to collapse items when 
+            // clicking on something not child of currently opened item
+            // $this.parent().parent().find('li .inner').removeClass('show');
+            // $this.parent().parent().find('li .inner').slideUp(350);
+            
             $this.next().toggleClass('show');
             $this.next().slideToggle(350);
         }

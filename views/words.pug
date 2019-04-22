@@ -28,7 +28,7 @@ block content
         div.flex-inner-w25
             h3 Meanings of 
             span.highlight #{query}
-            div
+            div.mt-3
                 ol
                     each word in words
                         li
@@ -95,7 +95,7 @@ block content
         div.flex-inner-w25
             h3 Related matches for 
             span.highlight #{query}
-            div
+            div.mt-3
                 ol
                     each word in related_words
                         li 
@@ -107,7 +107,7 @@ block content
                     h3 Other words in 
                     span.highlight #{cat[0].english_subcategory._}
                     span.highlight #{cat[0].konkani_subcategory._}
-                div
+                div.mt-3
                     ol
                         each word in cat
                             li

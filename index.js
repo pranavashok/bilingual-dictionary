@@ -17,6 +17,7 @@ var config = {
    storageAccount: process.env.AZURE_STORAGE_ACCOUNT,
    storageAccessKey: process.env.AZURE_STORAGE_ACCESS_KEY,
    connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
+   env: process.env.NODE_ENV,
    db1: "dictengtokon",
    db2: "dictkontoeng"
 };
@@ -147,6 +148,20 @@ function remove_duplicate_by_word_and_category(result) {
     return keep_rows;
 }
 
+function remove_nonsearchable(entries, column, num) {
+    var keep = [];
+    entries.forEach(function(row) {
+        if (row.hasOwnProperty('searchable')) {
+            if (!(row.searchable._ === num || row.searchable._ === String(num))) {
+                keep.push(row);
+            }
+        } else {
+            keep.push(row);
+        }
+    });
+    return keep;
+}
+
 function combine_more_details(m1, m2) {
     if (m1 == "") {
         return m2;
@@ -252,9 +267,9 @@ app.get('/searching', function(req, res) {
 
     if (primary_column == "english_word") {
     	var startswith_query = new azure.TableQuery()
-    					.select([primary_column])
+    					.select([primary_column, 'searchable'])
     					.top(30)
-    					.where("PartitionKey ge ? and PartitionKey lt ? and searchable ne 0", search_param.toLowerCase(), next_word(search_param).toLowerCase());
+    					.where("PartitionKey ge ? and PartitionKey lt ?", search_param.toLowerCase(), next_word(search_param).toLowerCase());
     }
     else {
         var startswith_query = new azure.TableQuery()
@@ -272,8 +287,8 @@ app.get('/searching', function(req, res) {
 		if(!error && result.entries.length > 0) {
 			data += "<thead><tr><td>Dictionary-style matches</td></tr></thead>";
 			data += "<tbody>";
-			
-			var unique_words = unique_words_by_column(result.entries, primary_column);
+			searchable_entries = remove_nonsearchable(result.entries, primary_column, 0);
+			var unique_words = unique_words_by_column(searchable_entries, primary_column);
 			unique_words.forEach(function(word) {
 				data += "<tr><td><a href=\"/words/" + word.replace(/ /g, '+') + "\">" + word + "</a></td></tr>";
 			}, this);
@@ -313,6 +328,20 @@ app.get('/searching', function(req, res) {
         // TODO: Ignore first word and pick stuff which are edit distance close, order them alphabetically
 
 	});
+
+    // Log searches
+    if (search_param.length >= 3 && config.env === "production") {
+        var task = {
+            PartitionKey : {'_': primary_column, '$':'Edm.String'},
+            RowKey: {'_': String(Date.now()), '$':'Edm.String'},
+            query: {'_': search_param, '$':'Edm.String'},
+        };
+        tableService.insertEntity('searchlog', task, function(error) {
+            if(!error) {
+            // Entity inserted
+            }
+        }); 
+    }
 });
 
 app.get("/words/:word", function(req, res) {
@@ -331,10 +360,6 @@ app.get("/words/:word", function(req, res) {
 		secondary_table = "dictengtokon";
         suggest_table = 'suggestkon';
 	}
-
-	// TODO: Update browse_count
-
-	// TODO: Related words, same subcategory words
 
 	var exact_word_query = new azure.TableQuery()
 					.select([secondary_column, 'part_of_speech', 'english_subcategory', 'konkani_subcategory', 'more_details'])
