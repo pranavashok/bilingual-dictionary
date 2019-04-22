@@ -30,7 +30,7 @@ $(function(){
     
     var currentRequest = null;
 
-    $('#search').on('keyup focus', function(e){
+    $('#search').on('keyup focus', function(e) {
         // $(".homepage-container").animate({"margin-top": "0"}, "fast");
 
         $("#specific-results").fadeTo(200,0.1);
@@ -49,7 +49,9 @@ $(function(){
             type: 'GET',
             data: 'search=' + query,
             url: '/searching',
-            beforeSend : function()    {           
+            beforeSend : function() {
+                // Code to show loader      
+                $('#results').html('<div class="d-flex justify-content-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>');
                 if(currentRequest != null) {
                     currentRequest.abort();
                 }

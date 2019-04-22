@@ -196,7 +196,7 @@ app.get('/searching', function(req, res) {
     	var startswith_query = new azure.TableQuery()
     					.select([primary_column])
     					.top(30)
-    					.where("PartitionKey ge ? and PartitionKey lt ? and searchable <> 0", search_param.toLowerCase(), next_word(search_param).toLowerCase());
+    					.where("PartitionKey ge ? and PartitionKey lt ? and searchable ne 0", search_param.toLowerCase(), next_word(search_param).toLowerCase());
     }
     else {
         var startswith_query = new azure.TableQuery()
@@ -317,6 +317,8 @@ app.get("/words/:word", function(req, res) {
                             list = sort_entries_by_column(list, "weight");
                         });
                     }
+
+                    console.log(main_result.entries);
 
                     res.render('words',
                         { title: 'A Southern Konkani Vocabulary Collection',
