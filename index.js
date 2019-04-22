@@ -122,20 +122,29 @@ function group_by_subcat(entries) {
     return values;
 }
 
-function group_by_column(entries, column) {
-    var keys = []
-    var values = []
-    entries.forEach(function(row) {
-        index = keys.indexOf(row[column]._);
-        if (index >= 0) {
-            values[index].push(row);
+function remove_duplicate_by_word_and_category(result) {
+    var unique = [];
+    var categories = [];
+    var keep_rows = [];
+    result.entries.forEach(function(row) {
+        // If word is new or else if word category pair is new, then add it to results
+        // the else case is when word and category is same, but more details might have other information
+        if (!unique.includes(row[secondary_column]._) || (unique.includes(row[secondary_column]._) && categories[unique.indexOf(row[secondary_column]._)] != row.english_subcategory._)) {
+            unique.push(row[secondary_column]._);
+            categories.push(row.english_subcategory._);
+            keep_rows.push(row);
         } else {
-            keys.push(row[column]._);
-            values.push(new Array());
-            values[values.length - 1].push(row);
+            index = unique.indexOf(row[secondary_column]._);
+            if ((row.part_of_speech._ == keep_rows[index].part_of_speech._) && (row.more_details._ != keep_rows[index].more_details._)) {
+                keep_rows[index].more_details._ = combine_more_details(row.more_details._, keep_rows[index].more_details._);
+            }
+            else {
+                // If part of speech is different, then push it
+                keep_rows.push(row);
+            }
         }
     });
-    return values;
+    return keep_rows;
 }
 
 function combine_more_details(m1, m2) {
@@ -340,26 +349,7 @@ app.get("/words/:word", function(req, res) {
             var main_result = {"entries": []};
 
             // Remove duplicates
-            var unique = [];
-            var categories = [];
-            result.entries.forEach(function(row) {
-                // If word is new or else if word category pair is new, then add it to results
-                // the else case is when word and category is same, but more details might have other information
-                if (!unique.includes(row[secondary_column]._) || (unique.includes(row[secondary_column]._) && categories[unique.indexOf(row[secondary_column]._)] != row.english_subcategory._)) {
-                    unique.push(row[secondary_column]._);
-                    categories.push(row.english_subcategory._);
-                    main_result.entries.push(row);
-                } else {
-                    index = unique.indexOf(row[secondary_column]._);
-                    if ((row.part_of_speech._ == main_result.entries[index].part_of_speech._) && (row.more_details._ != main_result.entries[index].more_details._)) {
-                        main_result.entries[index].more_details._ = combine_more_details(row.more_details._, main_result.entries[index].more_details._);
-                    }
-                    else {
-                        // If part of speech is different, then push it
-                        main_result.entries.push(row);
-                    }
-                }
-            });
+            main_result.entries = remove_duplicate_by_word_and_category(result);
 
             // Pick entries which contain query word in any way
             var related_entries = [];
