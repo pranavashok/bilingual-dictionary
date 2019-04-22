@@ -122,6 +122,55 @@ function group_by_subcat(entries) {
     return values;
 }
 
+function group_by_column(entries, column) {
+    var keys = []
+    var values = []
+    entries.forEach(function(row) {
+        index = keys.indexOf(row[column]._);
+        if (index >= 0) {
+            values[index].push(row);
+        } else {
+            keys.push(row[column]._);
+            values.push(new Array());
+            values[values.length - 1].push(row);
+        }
+    });
+    return values;
+}
+
+function combine_more_details(m1, m2) {
+    if (m1 == "") {
+        return m2;
+    }
+    if (m2 == "") {
+        return m1;
+    }
+
+    try {
+        m1 = JSON.parse(m1);
+        m2 = JSON.parse(m2);
+    } catch(ex) {
+        console.log("Exception in combining more_details");
+    }
+
+    const result = {};
+    let key;
+
+    for (key in m1) {
+      if(m1.hasOwnProperty(key)){
+        result[key] = m1[key];
+      }
+    }
+
+    for (key in m2) {
+      if(m2.hasOwnProperty(key)){
+        result[key] = m2[key];
+      }
+    }
+
+    return result;
+}
+
 function unique_entries_by_column(entries, column) {
 	unique_entries = [];
 	unique_words = [];
@@ -288,7 +337,29 @@ app.get("/words/:word", function(req, res) {
 
 	tableService.queryEntities(primary_table, exact_word_query, null, function(error, result, response) {
 		if(!error && result.entries.length > 0) {
-            main_result = result;
+            var main_result = {"entries": []};
+
+            // Remove duplicates
+            var unique = [];
+            var categories = [];
+            result.entries.forEach(function(row) {
+                // If word is new or else if word category pair is new, then add it to results
+                // the else case is when word and category is same, but more details might have other information
+                if (!unique.includes(row[secondary_column]._) || (unique.includes(row[secondary_column]._) && categories[unique.indexOf(row[secondary_column]._)] != row.english_subcategory._)) {
+                    unique.push(row[secondary_column]._);
+                    categories.push(row.english_subcategory._);
+                    main_result.entries.push(row);
+                } else {
+                    index = unique.indexOf(row[secondary_column]._);
+                    if ((row.part_of_speech._ == main_result.entries[index].part_of_speech._) && (row.more_details._ != main_result.entries[index].more_details._)) {
+                        main_result.entries[index].more_details._ = combine_more_details(row.more_details._, main_result.entries[index].more_details._);
+                    }
+                    else {
+                        // If part of speech is different, then push it
+                        main_result.entries.push(row);
+                    }
+                }
+            });
 
             // Pick entries which contain query word in any way
             var related_entries = [];
@@ -317,8 +388,6 @@ app.get("/words/:word", function(req, res) {
                             list = sort_entries_by_column(list, "weight");
                         });
                     }
-
-                    console.log(main_result.entries);
 
                     res.render('words',
                         { title: 'A Southern Konkani Vocabulary Collection',

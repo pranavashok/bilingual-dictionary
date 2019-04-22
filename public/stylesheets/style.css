@@ -197,6 +197,10 @@ h3 {
   font-size: 1.1em;
 }
 
+span.category {
+  font-weight: 400;
+}
+
 .more-details {
   font-size: 0.7em;
   color: #4c4c4c;
