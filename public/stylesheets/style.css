@@ -213,7 +213,31 @@ h3 {
 
 .highlight {
   color: #aa7777;
-  font-size: 1.1em;
+  font-size: 2.5rem;
+}
+
+@media (max-width: 1199.98px) { 
+  .highlight {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 991.98px) { 
+  .highlight {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 767.98px) { 
+  .highlight {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 575.98px) { 
+  .highlight {
+    font-size: 1.5rem;
+  }
 }
 
 span.category {
@@ -442,6 +466,11 @@ ul.bibliography li {
   margin-top: 0;
 }
 
+.btn-group {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
 @media only screen and (max-width: 767.98px) {
   .btn-secondary {
       font-size: 0.9rem;
@@ -470,9 +499,6 @@ ul.bibliography li {
       font-size: 0.5rem;
       height: 1.7rem;
       padding-top: 0;
-  }
-  .btn-group {
-    padding-bottom: 1rem;
   }
   /* Hide transliteration button */
   label.btn:nth-child(2) {

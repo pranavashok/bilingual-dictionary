@@ -460,7 +460,7 @@ app.get("/discover", function(req, res, next) {
                         .top(1)
                         .where("RowKey eq ?", String(randomRowKey));
 
-    tableService.queryEntities('suggesteng', randomQuery, null, function(error, result, response) {
+    tableService.queryEntities('suggestkon', randomQuery, null, function(error, result, response) {
         if (!error) {
             if (result.entries.length > 0) {
                 found = true;
