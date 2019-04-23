@@ -1,6 +1,14 @@
 extends layout.pug   
 
 block content
+    div.d-flex.justify-content-center(style="bottom:0;position:fixed;width:100vw")
+        div.narrow-width
+            div.introduction.alert.alert-info(role="alert")
+                button.close(type="button", data-dismiss="alert", aria-label="Close")
+                    span(aria-hidden="true") &times;
+                // h4.alert-heading Usage tips
+                // hr
+                p.mb-0 Welcome to दक्षिण कोंकणी उतरावळि, a large repository of Konkani vocabulary spoken by the Konkani people living in Kerala. Search for a word by typing either in English or in कोंकणी. If you feel more adventurous, then click on the #[b Discover!] button ;-)
     div.flex-container.homepage-search
         div.flex-item
             include keyboard.html

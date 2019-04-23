@@ -267,18 +267,10 @@ app.get('/searching', function(req, res) {
 	
 	var data = "";
 
-    if (primary_column == "english_word") {
-    	var startswith_query = new azure.TableQuery()
-    					.select([primary_column, 'searchable'])
-    					.top(30)
-    					.where("PartitionKey ge ? and PartitionKey lt ?", search_param.toLowerCase(), next_word(search_param).toLowerCase());
-    }
-    else {
-        var startswith_query = new azure.TableQuery()
-                        .select([primary_column])
-                        .top(30)
-                        .where("PartitionKey ge ? and PartitionKey lt ?", search_param.toLowerCase(), next_word(search_param).toLowerCase());
-    }
+	var startswith_query = new azure.TableQuery()
+					.select([primary_column, 'searchable'])
+					.top(30)
+					.where("PartitionKey ge ? and PartitionKey lt ?", search_param.toLowerCase(), next_word(search_param).toLowerCase());
 
     var containingwords_query = new azure.TableQuery()
                     .select(['RowKey', 'ParentWord', 'StrippedWord'])
