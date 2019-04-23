@@ -276,6 +276,9 @@ span.category {
     font-size: 1rem;
     line-height: 1rem;
   }
+  .discover {
+    font-size: 1.4rem;
+  }
 }
 
 @media only screen and (max-width: 575.98px) {
@@ -288,6 +291,9 @@ span.category {
    #results {
     width: 90vw;
     font-size: 0.65rem;
+  }
+  .discover {
+    font-size: 0.9rem;
   }
 }
 
@@ -355,6 +361,11 @@ nav .navbar-brand {
   width: 16rem;
   height: 2.22em;
   display: inline-block;
+}
+
+ul.bibliography li {
+  margin-bottom: 4px;
+  margin-top: 4px;
 }
 
 /* Sidebar was here */
