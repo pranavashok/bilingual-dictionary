@@ -33,6 +33,12 @@ $(function(){
     $('#search').on('keyup focus', function(e) {
         // $(".homepage-container").animate({"margin-top": "0"}, "fast");
 
+        if (e.key == 'Enter') {
+            window.location.href = $("#dict-results-table > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(1) > a:nth-child(1)")[0].href;
+            $('#results').html('<div class="d-flex justify-content-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>');
+            return;
+        }
+
         $("#specific-results").fadeTo(200,0.1);
 
         var query = $(this).val();
