@@ -1,4 +1,7 @@
 doctype html
+
+-var menu = { 'Search': '/', 'Discover!': '/discover', 'Contents': '/contents', 'Suggest': '/suggest', 'About': '/about', 'Contact': '/contact' };
+
 html
     head
         title= title
@@ -16,6 +19,10 @@ html
         block scripts
         meta(charset="utf-8")
         meta(name="viewport", content="width=device-width, initial-scale=1, shrink-to-fit=no")
+    
+    block link
+        -var selected = 'Search'; //default
+
     body(onload="pramukhIME.addKeyboard(PramukhIndic,'konkani')")
         nav.fixed-top.navbar.navbar-expand-md.navbar-light.bg-light(style="background-color: #e3f2fd;")
             span
@@ -25,16 +32,12 @@ html
             div.collapse.navbar-collapse(id="navbarToggler")
                 a.navbar-brand(href="/", style="color: #000; font-weight: 500;") दक्षिण कोंकणी उतरावळि
                 ul.navbar-nav.mr-auto
-                    li.nav-item
-                        a.nav-link.active(href="/") Search
-                    li.nav-item
-                        a.nav-link(href="/contents") Contents
-                    li.nav-item
-                        a.nav-link(href="/suggest") Suggest
-                    li.nav-item
-                        a.nav-link(href="/about") About    
-                    li.nav-item
-                        a.nav-link(href="/contact") Contact
+                    each val, key in menu
+                        li.nav-item
+                            if selected === key
+                                a.nav-link.active(href=val, title=key)= key
+                            else
+                                a.nav-link(href=val, title=key)= key
         div#main
             h1 #[a(href="/") #{heading_konkani}]
             h1 #[a(href="/") #{heading}]

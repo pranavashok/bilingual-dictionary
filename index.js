@@ -346,33 +346,41 @@ app.get('/searching', function(req, res) {
     }
 });
 
-app.get("/words/:word", function(req, res) {
-	word = req.params.word.replace(/\+/g, ' ');
-	// If typing in English, then
-	if (word.search(/^([\x00-\xFF]+)/) != -1) {
-		primary_column = "english_word";
-		secondary_column = "konkani_word";
-		primary_table = "dictengtokon";
-		secondary_table = "dictkontoeng";
-        suggest_table = 'suggesteng';
-	} else {
-		primary_column = "konkani_word";
-		secondary_column = "english_word";
-		primary_table = "dictkontoeng";
-		secondary_table = "dictengtokon";
-        suggest_table = 'suggestkon';
-	}
+function get_word(req, res, next) {
+    if (res.locals.word) {
+        console.log("Random word ", res.locals.word, " chosen");
+        word = res.locals.word;
+    }
+    else 
+        word = req.params.word;
+    
+    word = word.replace(/\+/g, ' ');
 
-	var exact_word_query = new azure.TableQuery()
-					.select([secondary_column, 'part_of_speech', 'english_subcategory', 'konkani_subcategory', 'more_details'])
-					.where("PartitionKey ge ? and PartitionKey lt ? and " + primary_column + " eq ?", word.toLowerCase(), next_word(word).toLowerCase(), word.toLowerCase());
+    // If typing in English, then
+    if (word.search(/^([\x00-\xFF]+)/) != -1) {
+        primary_column = "english_word";
+        secondary_column = "konkani_word";
+        primary_table = "dictengtokon";
+        secondary_table = "dictkontoeng";
+        suggest_table = 'suggesteng';
+    } else {
+        primary_column = "konkani_word";
+        secondary_column = "english_word";
+        primary_table = "dictkontoeng";
+        secondary_table = "dictengtokon";
+        suggest_table = 'suggestkon';
+    }
+
+    var exact_word_query = new azure.TableQuery()
+                    .select([secondary_column, 'part_of_speech', 'english_subcategory', 'konkani_subcategory', 'more_details'])
+                    .where("PartitionKey ge ? and PartitionKey lt ? and " + primary_column + " eq ?", word.toLowerCase(), next_word(word).toLowerCase(), word.toLowerCase());
 
     var containingwords_query = new azure.TableQuery()
                     .select(['RowKey', 'ParentWord', 'StrippedWord'])
                     .where("PartitionKey eq ?", word.toLowerCase());
 
-	tableService.queryEntities(primary_table, exact_word_query, null, function(error, result, response) {
-		if(!error && result.entries.length > 0) {
+    tableService.queryEntities(primary_table, exact_word_query, null, function(error, result, response) {
+        if(!error && result.entries.length > 0) {
             var main_result = {"entries": []};
 
             // Remove duplicates
@@ -415,6 +423,9 @@ app.get("/words/:word", function(req, res) {
                         words: main_result.entries,
                         related_words: related_entries,
                         same_subcat_words: all_subcat_entries
+                    }, function(err, html) {
+                        res.location('/words/' + word);
+                        res.send(html);
                     });
                 });
             });
@@ -427,11 +438,42 @@ app.get("/words/:word", function(req, res) {
                     words: [],
                     related_words: [],
                     same_subcat_words: []
+            }, function(err, html) {
+                res.location('/words/' + word);
+                res.send(html);
             });
         }
-	});	
+    }); 
+}
 
-});
+app.get("/words/:word", get_word);
+
+app.get("/discover", function(req, res, next) {
+    // Generate random key and check if there is an entry with that row key
+    var found = false;
+    var i = 0;
+    
+    var randomRowKey = Math.floor(Math.random() * Math.floor(60000));
+
+    var randomQuery = new azure.TableQuery()
+                        .select(['PartitionKey', 'RowKey', 'ParentWord'])
+                        .top(1)
+                        .where("RowKey eq ?", String(randomRowKey));
+
+    tableService.queryEntities('suggesteng', randomQuery, null, function(error, result, response) {
+        if (!error) {
+            if (result.entries.length > 0) {
+                found = true;
+                res.locals.word = result.entries[0].ParentWord._;
+                next();
+            } else {
+                res.redirect('/discover');
+            }
+        } else {
+            console.log(error);
+        }
+    });
+}, get_word);
 
 app.get("/category/:category", function(req, res) {
     category = req.params.category.replace(/\+/g, ' ');

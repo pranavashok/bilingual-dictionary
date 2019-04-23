@@ -1,5 +1,8 @@
 extends layout.pug   
 
+block link
+    -var selected = 'Suggest';
+
 block content
     div#successful-submission.modal.fade(abindex="-1", role="dialog", aria-labelledby="alertModal", aria-hidden="true")
         div.modal-dialog
