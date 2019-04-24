@@ -426,6 +426,12 @@ ul.bibliography li {
   font-size: 1rem;
 }
 
+@media screen and (max-height: 630px) {
+  .introduction {
+    font-size: 0.7rem;
+  }
+}
+
 /* Toggle */
 .btn-secondary {
   font-size: 1rem;
