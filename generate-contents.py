@@ -48,7 +48,6 @@ for i in range(0, len(lines)):
         print("%sli.expandable" % (" "*(2*whitespace+1+basewsp)*4 ))
 
     if i in deepest_level:
-        print(lines[i])
         eng, kon = lines[i].strip().split(";")
         eng = eng.strip()
         kon = kon.strip()

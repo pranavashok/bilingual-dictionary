@@ -255,19 +255,29 @@ Language, food and culture;भास, खाण आनी संस्कार�
 				Verbal noun;क्रियार्थक संज्ञा
 			Preposition;संबंदबोदक
 			Pronouns;सर्वनाम
-Subject Pronouns;
-Object Pronouns;
-Intensive Pronouns;
-Demonstrative Pronouns;
-Indefinite Pronouns;
-Possessive Pronouns (absolute);
-Possessive Pronouns (adjective);
-
-
-
-
-
-
+				Personal Pronouns;व्यक्तिवाचक सर्वनाम
+					Subjective Pronouns;विषय सर्वनाम
+					Objective Pronouns;वस्तु सर्वनाम
+				Demonstrative Pronouns;निश्चयवाचक सर्वनाम 
+				Indefinite Pronouns;अनिश्चयवाचक सर्वनाम
+				Compound Personal Pronoun;संयुक्त व्यक्तिवाचक सर्वनाम
+				Reflexive Pronouns 1;निजवाचक सर्वनाम 1
+				Reflexive Pronouns 2;निजवाचक सर्वनाम 2
+				Intensive Pronouns;अवधारक सर्वनाम
+				Possessive Pronouns;स्वत्वबोधक सर्वनाम
+					Possessive Pronouns (Absolute 1);परम सम्बन्धसूचक सर्वनाम 1
+					Possessive Pronouns (Absolute 2);परम सम्बन्धसूचक सर्वनाम 2	
+					Possessive Pronouns (Adjective 1);सम्बन्धसूचक सर्वनाम 1
+					Possessive Pronouns (Adjective 2);सम्बन्धसूचक सर्वनाम 2	
+				Instrumental case of Pronouns 1;करण कारक 1
+				Instrumental case of pronouns 2;करण कारक 2
+				Dative case of Pronouns 1;संप्रदान कारक 1
+				Dative case of Pronouns 2;संप्रदान कारक 2
+				Ablative case of Pronouns;अपादान कारक
+				Accusative case of Pronouns;कर्म कारक
+				Locative case of Pronouns 1;अधिकरण कारक 1
+				Locative case of Pronouns 2;अधिकरण कारक 2
+				Declension of Demonstrative Pronouns;निश्चयवाचक सर्वनामांची विभक्ति रूप
 			Verb;क्रियापद
 				Verbs starting with letter अ;अ अक्षराचीं क्रियापदां
 				Verbs starting with letter आ;आ अक्षराचीं क्रियापदां
