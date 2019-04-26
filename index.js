@@ -445,7 +445,7 @@ app.get("/discover", function(req, res, next) {
     var found = false;
     var i = 0;
     
-    var randomRowKey = Math.floor(Math.random() * Math.floor(60000));
+    var randomRowKey = Math.floor(Math.random() * Math.floor(80000));
 
     var randomQuery = new azure.TableQuery()
                         .select(['PartitionKey', 'RowKey', 'ParentWord'])

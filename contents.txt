@@ -149,9 +149,6 @@ Language, food and culture;भास, खाण आनी संस्कार�
 				Onomatopoeic verbs starting with letter व; व अक्षराची शब्दानुकरण क्रिया
 				Onomatopoeic verbs starting with letters श, स and ष; श, स आनी ष अक्षरांची शब्दानुकरण क्रिया
 				Onomatopoeic verbs starting with letter ह; ह अक्षराची शब्दानुकरण क्रिया
-			Future Tense;भविष्य काल
-			Immediate Future;आसन्न भविष्य
-			Probable Future tense;संभाव्य भविष्य
 		Parts of Speech;उतरांचे भेद
 			Adjectives;विशेषण
 				Adjectives for action;करणी संबंधित विशेषण
@@ -199,9 +196,6 @@ Language, food and culture;भास, खाण आनी संस्कार�
 				Indefinite numeral adjectives;प्रदर्शनात्मक विशेषण
 				Other miscellaneous adjectives;इतर मिश्र विशेषण
 				Other miscellaneous adjectives shared with other indian languages;सामान्य भारतीय भासेंतु उपयोगाक काडचीं थोडीं मिश्र विशेषण
-				Possessive adjectives;संबंधवाचक विशेषण
-				Some adjectives from sanskrit used in konkani;कोंकणींतु उपयोगाक काडचीं थोडीं संस्कृत नाम विशेशणां
-				Some other miscellaneous adjectives shared with indian languages with konkanised spellings;सामान्य भारतीय भासेंतु उपयोगाक काडचीं थोडीं मिश्र नाम विशेशणां
 			Adverbs;क्रिया विशेषण
 				Adverbs of Degree or Quantity;व्याप्तिवाचक क्रिया विशेषण
 					Adverbs of Minimal;न्यूनतमवाचक क्रिया विशेषण
@@ -226,8 +220,7 @@ Language, food and culture;भास, खाण आनी संस्कार�
 					Adverbs of Frequency;आवृत्तीवाचक क्रिया विशेषण		
 					Adverbs of Duration;अवधिवाचक क्रिया विशेषण		
 				Misc Adverbs;समिश्र क्रिया विशेषण
-			Conjunction;समुच्चयबोधक
-			Indefinite pronouns;अनिश्चित सर्वनाम
+			Conjunction;संयोजक
 			Nouns;नाम, संज्ञा
 				Abstract nouns;भाववाचक संज्ञा
 				Collective noun;समूहवाचक संज्ञा
@@ -253,7 +246,7 @@ Language, food and culture;भास, खाण आनी संस्कार�
 				Trait noun;लक्षणात्मक संज्ञा
 				Uncountable nouns;अगणित संज्ञा
 				Verbal noun;क्रियार्थक संज्ञा
-			Preposition;संबंदबोदक
+			Preposition or Postpositions;परसर्ग
 			Pronouns;सर्वनाम
 				Personal Pronouns;व्यक्तिवाचक सर्वनाम
 					Subjective Pronouns;विषय सर्वनाम
@@ -264,13 +257,14 @@ Language, food and culture;भास, खाण आनी संस्कार�
 				Reflexive Pronouns 1;निजवाचक सर्वनाम 1
 				Reflexive Pronouns 2;निजवाचक सर्वनाम 2
 				Intensive Pronouns;अवधारक सर्वनाम
+				Oblique case;विकारी कारक सर्वनाम
 				Possessive Pronouns;स्वत्वबोधक सर्वनाम
 					Possessive Pronouns (Absolute 1);परम सम्बन्धसूचक सर्वनाम 1
 					Possessive Pronouns (Absolute 2);परम सम्बन्धसूचक सर्वनाम 2	
 					Possessive Pronouns (Adjective 1);सम्बन्धसूचक सर्वनाम 1
 					Possessive Pronouns (Adjective 2);सम्बन्धसूचक सर्वनाम 2	
 				Instrumental case of Pronouns 1;करण कारक 1
-				Instrumental case of pronouns 2;करण कारक 2
+				Instrumental case of Pronouns 2;करण कारक 2
 				Dative case of Pronouns 1;संप्रदान कारक 1
 				Dative case of Pronouns 2;संप्रदान कारक 2
 				Ablative case of Pronouns;अपादान कारक
@@ -392,32 +386,36 @@ Language, food and culture;भास, खाण आनी संस्कार�
 				Verbs starting with letters हि, ही, हु and हू;हि, ही, हु आनी हू अक्षरांचीं क्रियापदां
 				Verbs starting with letters हे, है, हो and हौ;हे, है, हो आनी हौ अक्षरांचीं क्रियापदां
 		Singular-plural;एकवचन-बहुवचन
+		Immediate Future;आसन्न भविष्य
+		Probable Future tense;संभाव्य भविष्य
 		Transitional phrases;परिवर्ती वाक्य
+			Transitional words based on Time, Cronology, Sequence;परिवर्ती वाक्य
+			Transitional words based on Cause and Effect;परिवर्ती वाक्य
 	Food;अन्न आहार
 		Cooked food;खाण
 		Water and beverages;पानीय
 		Sweets;गोडशें
 			Sweet food items;गोडसाणी खाण
-			Sweet ball undo;उंडो
+			Ball shaped sweet;उंडो
 			Sweet flat bread;पुर्णपोळी
 			Jelly like sweet;हालवो
-			Soft sweet dudhali;दुद्दळी
-			Soft sweet pongolu;पोंगोलु
+			Soft flat sweet;दुद्दळी
+			Soft rice sweet;पोंगोलु
 			Semolina pudding;शीरें
-			Sweet ball mooliku;मूळीकु
+			Sweet batter covered ball;मूळीकु
 			Sweet flat dumpling;पातळी
 			Sweet mix;गोड वा पैंदार घालनु कालयलेलें
-		Indian dessert;पायस
-			Sweet pudding;गोड वा पैंदार घालोलो पायसु
-			Sweet pudding;ककंबि
-			Sweet pudding paaysu;पायसु
+		Indian dessert;पायसु
+			Sweet pudding with jaggery or sugar;गोड वा पैंदार घालोलो पायसु
+			Sweet fruit pudding;ककंबि
+			Sweet pudding dessert;पायसु
 			Sweet pudding;खीरी
 		Sweet and savoury dishes;गोडसाणी रांवदयो
 			Sweet dishes;गोड्यो रांवदयो
-			Sweet savoury dish god ambat;गोड आंबट
-			Sweet dish god sassam;गोड सासम
-			Thin sweet dish god humman;गोड हुम्माण
-			Sweet savoury dish godi ghashi;गोडि घशी
+			Sweet savoury dish of fruits;गोड आंबट
+			Sweet fruit dish;गोड सासम
+			Thin sweet dish;गोड हुम्माण
+			Sweet savoury dish with coconut;गोडि घशी
 			Sweet savoury dry dish;मोरगेलु
 		Deep fried food items;तळ्ळेलें खाण
 			Deep fried snacks;तळ्ळेलें खाण
@@ -434,15 +432,15 @@ Language, food and culture;भास, खाण आनी संस्कार�
 		Main dishes;कलवणेचें
 			Spiced curry used to mix with rice;तोय, सारु, हुम्माण
 			Weak slightly sour dish with coconut;पुळचिकरी
-			Main curry or dish holli ravndai;व्होडली अथवा होळ्ळी रांवदय
-			Main curry or dish ambat;आंबट
-			Main curry or dish dhavi ghashi;धवी घशी, हळदूवे मासला घशी
-			Main curry or dish alchikari;अळचिकरी
+			Major dish;व्होडली अथवा होळ्ळी रांवदय
+			Main curry with curd;आंबट
+			Main curry with coconut;हळदूवे मासला घशी
+			Main curry or dish;अळचिकरी
 			Main curry or dish with a roasted and ground coconut masala;सोयी भाजिल्ली घशी अथवा भाजिल्ले मासला घशी
 		Sub dishes;सान्यो आनी सोपूर्यो रांवदयो
 			Sub curry or dish;सानी रांवदय
-			Sub dish sassam;सासम
-			Sub dish pachati;पच्चट्टी
+			Sub dish with coconut;सासम
+			Sub dish with buttermilk;पच्चट्टी
 			Wet sub dish;पातळ सुक्कें
 			Side dish;सोपूरी रांवदय
 			Coconut based stir fry;सुक्कें
@@ -471,7 +469,7 @@ Language, food and culture;भास, खाण आनी संस्कार�
 			Other words related to wedding;व्हारडिक संबंधित इतर उतरां
 			Words related to pre wedding;व्हारडिके मुरथमलीं उतरां
 			Customs related to wedding ceremony;व्हारडिक संबंधित आचार
-			Post wedding verbs;व्हारडिके उपरांतेचे आचार
+			Post wedding customs;व्हारडिके उपरांतेचे आचार
 			Eight auspicious items;अष्टमंगल्य
 			Gifts given to the groom;वरदक्षिणा
 		Upanayanam or sacred thread ceremony;मूंजि अथवा उपनयन
