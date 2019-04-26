@@ -476,13 +476,14 @@ app.get("/category/:category", function(req, res) {
 
     // Same subcategory words
     var samesubcat_query = new azure.TableQuery()
-                .select(['konkani_word', 'english_subcategory', 'konkani_subcategory'])
+                .select(['konkani_word', 'english_subcategory', 'konkani_subcategory', 'weight'])
                 .where('english_subcategory eq ?', category);
 
     var samesubcat_entries = [];
     tableService.queryEntities('dictkontoeng', samesubcat_query, null, function(error, result, response) {
         if(!error && result.entries.length > 0) {
             samesubcat_entries = unique_entries_by_column(result.entries, 'konkani_word');
+            samesubcat_entries = sort_entries_by_column(samesubcat_entries, "weight");
 
             // TODO: Sort words by konkani
         }
