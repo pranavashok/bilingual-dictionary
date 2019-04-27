@@ -4,6 +4,9 @@ var express = require('express')
 var app = express()
 var path = require('path');
 
+var AirbrakeClient = require('airbrake-js');
+var makeErrorHandler = require('airbrake-js/dist/instrumentation/express');
+
 var azure = require('azure-storage');
 
 // For mailing
@@ -38,6 +41,15 @@ app.use(function(req, res, next) {
 	res.locals.user = req.user;
 	next();
 });
+
+var airbrake = new AirbrakeClient({
+  projectId: 224474,
+  projectKey: '58928e646f6ecf7de6e06ec24a9e3120'
+});
+
+if (config.env === "production") {
+	app.use(makeErrorHandler(airbrake));
+}
 
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
