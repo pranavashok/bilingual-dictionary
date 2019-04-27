@@ -142,6 +142,10 @@ function remove_duplicate_by_word_and_category(result) {
     result.entries.forEach(function(row) {
         // If word is new or else if word category pair is new, then add it to results
         // the else case is when word and category is same, but more details might have other information
+        if (!row.hasOwnProperty(secondary_column)) {
+            console.log("Error: secondary_column doesn't exist in row ", row);
+            return result;
+        }
         if (!unique.includes(row[secondary_column]._) || (unique.includes(row[secondary_column]._) && categories[unique.indexOf(row[secondary_column]._)] != row.english_subcategory._)) {
             unique.push(row[secondary_column]._);
             categories.push(row.english_subcategory._);
