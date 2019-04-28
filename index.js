@@ -497,6 +497,22 @@ function get_word(req, res, next) {
             });
         }
     }); 
+
+    // Log words
+    if (config.env === "production") {
+        var task = {
+            PartitionKey : {'_': primary_column, '$':'Edm.String'},
+            RowKey: {'_': String(Date.now()), '$':'Edm.String'},
+            query: {'_': word, '$':'Edm.String'},
+            complete: {'_': true, '$': 'Edm.Boolean'}
+        };
+        tableService.insertEntity('searchlog', task, function(error) {
+            if(error) {
+                console.error("Error occured when inserting \n", task, "\n into searchlog");
+                console.error(error);
+            }
+        }); 
+    }
 }
 
 app.get("/words/:word", get_word);
