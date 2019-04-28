@@ -295,7 +295,14 @@ app.get('/searching', function(req, res) {
 
 	tableService.queryEntities(primary_table, startswith_query, null, function(error, result, response) {
 		data += "<table class=\"results-table\" id=\"dict-results-table\">";
-		if(!error && result.entries.length > 0) {
+		if (error) { // Error case
+            data += "<thead><tr><td>Hmm, something has gone wrong</td></tr></thead>";
+            data += "</thead>";
+            data += "<tbody><tr><td>Try again in some time</td></tr></tbody>";
+            console.error("Error occured in startswith_query with parameters ", search_param.toLowerCase(), next_word(search_param).toLowerCase());
+            console.error(error);
+        }
+        else if(result.entries.length > 0) {
 			data += "<thead><tr><td>Dictionary-style matches</td></tr></thead>";
 			data += "<tbody>";
 			searchable_entries = remove_nonsearchable(result.entries, primary_column, 0);
@@ -304,23 +311,21 @@ app.get('/searching', function(req, res) {
 				data += "<tr><td><a href=\"/words/" + word.replace(/ /g, '+') + "\">" + word + "</a></td></tr>";
 			}, this);
 			data += "</tbody>";
-		} else if (result.entries.length == 0) {
+		} else { // if (result.entries.length == 0)
             data += "<thead><tr><td>No exact matches</td></tr></thead>";
             data += "</thead>";
         }
-        else { // Error case
-            data += "<thead><tr><td>Hmm, something has gone wrong</td></tr></thead>";
-            data += "</thead>";
-            data += "<tbody><tr><td>Try again in some time</td></tr></tbody>";
-            console.error("Error occured in startswith_query with parameters ", search_param.toLowerCase(), next_word(search_param).toLowerCase());
-            console.error(error);
-		}
 		data += "</table>";
 
         // Pick entries which contain query word in any way
         tableService.queryEntities(suggest_table, containingwords_query, null, function(error, result, response) {
             data += "<table class=\"results-table\" id=\"suggested-results-table\">";
-            if(!error && result.entries.length > 0) {
+            
+            if (error) { // Error case
+                console.errorerror("Error occured in containingwords_query with parameters ", search_param.toLowerCase(), next_word(search_param).toLowerCase());
+                console.errorerror(error);
+            }
+            else if(result.entries.length > 0) {
                 data += "<thead><tr><td>Suggested matches</td></tr></thead>";
                 data += "<tbody>";
 
@@ -334,14 +339,12 @@ app.get('/searching', function(req, res) {
                     data += "<tr><td><a href=\"/words/" + word.replace(/ /g, '+') + "\">" + word + "</a></td></tr>";
                 }, this);
                 data += "</tbody>";
-            } else if (result.entries.length == 0) {
+            }
+            else { // if (result.entries.length == 0)
                 data += "<thead><tr><td>No other suggestions</td></tr></thead>";
                 data += "</thead>";
             }
-            else { // Error case
-                console.errorerror("Error occured in containingwords_query with parameters ", search_param.toLowerCase(), next_word(search_param).toLowerCase());
-                console.errorerror(error);
-            }
+            
             data += "</table>";
 
             res.send(data);
@@ -401,7 +404,23 @@ function get_word(req, res, next) {
                     .where("PartitionKey eq ?", word.toLowerCase());
 
     tableService.queryEntities(primary_table, exact_word_query, null, function(error, result, response) {
-        if(!error && result.entries.length > 0) {
+        if (error) {
+                console.error("get_word(): Error occured in exact_word_query: ", "PartitionKey ge '", word.toLowerCase(), "' and PartitionKey lt '",  next_word(word).toLowerCase(), "' and " + primary_column + " eq '", word.toLowerCase(), "'");
+                console.error(error);
+                // TODO replace below with error page
+                res.render('words',
+                    { title: 'A Southern Konkani Vocabulary Collection',
+                    heading: 'A Southern Konkani Vocabulary Collection',
+                    heading_konkani: 'दक्षिण कोंकणी उतरावळि',
+                    query: word,
+                    words: [],
+                    related_words: [],
+                    same_subcat_words: []
+                }, function(err, html) {
+                    res.location('/words/' + word);
+                    res.send(html);
+                });
+        } else if(result.entries.length > 0) {
             var main_result = {"entries": []};
 
             // Remove duplicates
@@ -410,13 +429,16 @@ function get_word(req, res, next) {
             // Pick entries which contain query word in any way
             var related_entries = [];
             tableService.queryEntities(suggest_table, containingwords_query, null, function(error, result, response) {
-                if(!error && result.entries.length > 0) {
+                if (error) {
+                    console.error("get_word(): Error occured in containingwords_query with parameter ", word.toLowerCase());
+                    console.error(error);
+                }
+                else if(result.entries.length > 0) {
                     related_entries = unique_entries_by_column(result.entries, 'ParentWord');
                     related_entries = related_entries.filter(x => x.ParentWord._ !== word);
                 }
-                else if (error) {
-                    console.error("get_word(): Error occured in containingwords_query with parameter ", word.toLowerCase());
-                    console.error(error);
+                else { // in case result.entries.length == 0
+                    //
                 }
 
                 // Same subcategory words
@@ -455,10 +477,6 @@ function get_word(req, res, next) {
                 });
             });
         } else {
-            if (error) {
-                console.error("get_word(): Error occured in exact_word_query: ", "PartitionKey ge '", word.toLowerCase(), "' and PartitionKey lt '",  next_word(word).toLowerCase(), "' and " + primary_column + " eq '", word.toLowerCase(), "'");
-                console.error(error);
-            }
             res.render('words',
                     { title: 'A Southern Konkani Vocabulary Collection',
                     heading: 'A Southern Konkani Vocabulary Collection',
@@ -501,7 +519,7 @@ app.get("/discover", function(req, res, next) {
         } else {
             console.error("Error occured in randomQuery with parameter '", String(randomRowKey), "'");
             console.error(error);
-            error_counter += 1;
+            error_counter += 1; // TODO this won't really work because each time it gets reset to 0
             msleep(250*error_counter); // Sleep for milliseconds
             if (error_counter < 6) {
                 res.redirect('/discover');
