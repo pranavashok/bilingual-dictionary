@@ -34,9 +34,14 @@ $(function(){
         // $(".homepage-container").animate({"margin-top": "0"}, "fast");
 
         if (e.key == 'Enter') {
-            window.location.href = $("#dict-results-table > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(1) > a:nth-child(1)")[0].href;
-            $('#results').html('<div class="d-flex justify-content-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>');
-            return;
+            if ($("#dict-results-table > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(1) > a:nth-child(1)").length == 0) {
+                console.warn("Enter pressed before results appeared");
+                return;
+            } else {
+                window.location.href = $("#dict-results-table > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(1) > a:nth-child(1)")[0].href;
+                $('#results').html('<div class="d-flex justify-content-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>');
+                return;
+            }
         }
 
         $("#specific-results").fadeTo(200,0.1);
