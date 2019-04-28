@@ -35,6 +35,8 @@ app.set('view engine', 'pug')
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(robots({UserAgent: '*', Disallow: '/'}))
+
 app.locals.pretty = true;
 
 app.use(function(req, res, next) {

@@ -51,6 +51,7 @@
     "express": "^4.16.4",
     "express-generator": "^4.16.0",
     "express-recaptcha": "^4.1.1",
+    "express-robots-txt": "^0.4.0",
     "finalhandler": "^1.1.1",
     "forwarded": "^0.1.2",
     "fresh": "^0.5.2",
