@@ -67,12 +67,14 @@ $(function(){
                 $('#results').html(data);
             },
             error:function(jqXHR, textStatus){
-                $('#results').html("Error occured, please try again in a while.");
                 if(textStatus === 'timeout')
                 {     
                     console.log("Timed out while searching");
                     console.log("GET /searching?search=", query);
                     //do something. Try again perhaps?
+                }
+                if (textStatus !== 'abort') {
+                    $('#results').html("Error occured, please try again in a while.");
                 }
             }
         });
