@@ -322,8 +322,8 @@ app.get('/searching', function(req, res) {
             data += "<table class=\"results-table\" id=\"suggested-results-table\">";
             
             if (error) { // Error case
-                console.errorerror("Error occured in containingwords_query with parameters ", search_param.toLowerCase(), next_word(search_param).toLowerCase());
-                console.errorerror(error);
+                console.error("Error occured in containingwords_query with parameters ", search_param.toLowerCase(), next_word(search_param).toLowerCase());
+                console.error(error);
             }
             else if(result.entries.length > 0) {
                 data += "<thead><tr><td>Suggested matches</td></tr></thead>";
