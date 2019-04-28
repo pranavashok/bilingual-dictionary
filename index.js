@@ -4,9 +4,6 @@ var express = require('express')
 var app = express()
 var path = require('path');
 
-var AirbrakeClient = require('airbrake-js');
-var makeErrorHandler = require('airbrake-js/dist/instrumentation/express');
-
 var azure = require('azure-storage');
 
 // For mailing
@@ -20,6 +17,9 @@ var config = {
    storageAccount: process.env.AZURE_STORAGE_ACCOUNT,
    storageAccessKey: process.env.AZURE_STORAGE_ACCESS_KEY,
    connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
+   // Rollbar
+   post_client_item: process.env.POST_CLIENT_ITEM_ACCESS_TOKEN,
+   post_server_item: process.env.POST_SERVER_ITEM_ACCESS_TOKEN,
    env: process.env.NODE_ENV,
    db1: "dictengtokon",
    db2: "dictkontoeng"
@@ -38,20 +38,24 @@ app.use(express.static(path.join(__dirname, 'public')));
 // app.use(robots({UserAgent: '*', Disallow: '/'}))
 
 app.locals.pretty = true;
+app.locals.env = config.env;
+app.locals.post_client_item = config.post_client_item; 
 
 app.use(function(req, res, next) {
-	res.locals.user = req.user;
-	next();
+    res.locals.user = req.user;
+    next();
 });
 
-var airbrake = new AirbrakeClient({
-  projectId: 224474,
-  projectKey: '58928e646f6ecf7de6e06ec24a9e3120'
+// include and initialize the rollbar library with your access token
+var Rollbar = require("rollbar");
+var rollbar = new Rollbar({
+    accessToken: config.post_server_item,
+    captureUncaught: true,
+    captureUnhandledRejections: true,
+    payload: {
+        environment: config.env
+    }
 });
-
-if (config.env === "production") {
-	app.use(makeErrorHandler(airbrake));
-}
 
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
