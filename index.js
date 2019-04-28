@@ -222,6 +222,10 @@ function unique_entries_by_column(entries, column) {
 	unique_entries = [];
 	unique_words = [];
 	entries.forEach(function(row) {
+        if (!row.hasOwnProperty(column)) {
+            console.error("unique_entries_by_column() failed with \nEntries\n", entries, "\nColumn:", column);
+            return entries;
+        }
 		if (!unique_words.includes(row[column]._)) {
 			unique_entries.push(row);
             unique_words.push(row[column]._);
@@ -462,8 +466,13 @@ function get_word(req, res, next) {
                             .where(constraint_string.join(" or "), ...constraints);
 
                 var samesubcat_entries = [];
+                var all_subcat_entries = [];
                 tableService.queryEntities(primary_table, samesubcat_query, null, function(error, result, response) {
-                    if(!error && result.entries.length > 0) {
+                    if (error) {
+                        console.error("get_word(): Error occured in samesubcat_query with parameters: ", constraint_string.join(" or "), ...constraints);
+                        console.error(error);
+                    }
+                    else if (result.entries.length > 0) {
                         all_subcat_entries = group_by_subcat(result.entries);
                         all_subcat_entries.forEach(function(list, index) {
                             list = unique_entries_by_column(list, primary_column);
