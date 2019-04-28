@@ -377,9 +377,11 @@ app.get('/searching', function(req, res) {
 });
 
 function get_word(req, res, next) {
+    var discover = false;
     if (res.locals.word) {
         console.info("Random word ", res.locals.word, " chosen");
         word = res.locals.word;
+        discover = true;
     }
     else 
         word = req.params.word;
@@ -504,6 +506,7 @@ function get_word(req, res, next) {
             PartitionKey : {'_': primary_column, '$':'Edm.String'},
             RowKey: {'_': String(Date.now()), '$':'Edm.String'},
             query: {'_': word, '$':'Edm.String'},
+            discover: {'_': discover, '$':'Edm.Boolean'},
             complete: {'_': true, '$': 'Edm.Boolean'}
         };
         tableService.insertEntity('searchlog', task, function(error) {
