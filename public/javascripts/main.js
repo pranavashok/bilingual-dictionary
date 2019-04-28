@@ -187,6 +187,22 @@ $(function(){
     });
 
     $('#showtoggle').click(function(){ $('#answer').toggle(); return false; });
+
+    $("input[name='options']").change(function() {
+        var method = $("input[name='options']:checked").val();
+        switch (method) {
+            case "roman":
+                $("#search").attr("placeholder", "type an english word or change input method");
+                break;
+            case "nagari":
+                $("#search").attr("placeholder", "type to transliterate into konkani");
+                break;
+            case "keyboard":
+                $("#search").attr("placeholder", "type using the onscreen keyboard");
+                break;
+        }
+        
+    });
 });
 
 function onSceenKeyboard() {

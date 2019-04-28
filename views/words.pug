@@ -6,16 +6,16 @@ block content
             include keyboard.html
         div.flex-item.flex-reverse
             div.flex-inner
-                input#search(type="text", class="pure-form", placeholder="start typing or select another input method")
+                input#search(type="text", class="pure-form", placeholder="type an english word or change input method")
             div.flex-inner
                 div(class="btn-group btn-group-toggle", data-toggle="buttons")
-                    label(class="btn btn-secondary active")
+                    label(class="btn btn-secondary active", for="opt-roman")
                         input(type="radio", name="options", id="opt-roman", autocomplete="off", value="roman", onchange="pramukhIME.disable();onSceenKeyboard();" checked)
                         | English
-                    label(class="btn btn-secondary")
+                    label(class="btn btn-secondary", for="opt-nagari")
                         input(type="radio", name="options", id="opt-nagari", autocomplete="off", value="nagari", onchange="pramukhIME.enable();onSceenKeyboard();") 
                         | कोंकणी
-                    label(class="btn btn-secondary btn-long-text")
+                    label(class="btn btn-secondary btn-long-text", for="opt-keyboard")
                         input(type="radio" name="options" id="opt-keyboard" autocomplete="off", value="keyboard", onchange="pramukhIME.enable();onSceenKeyboard();")
                         | On-screen<br/>Keyboard
         div.flex-item
