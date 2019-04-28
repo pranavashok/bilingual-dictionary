@@ -366,6 +366,7 @@ app.get('/searching', function(req, res) {
             PartitionKey : {'_': primary_column, '$':'Edm.String'},
             RowKey: {'_': String(Date.now()), '$':'Edm.String'},
             query: {'_': search_param, '$':'Edm.String'},
+            complete: {'_': false, '$': 'Edm.Boolean'}
         };
         tableService.insertEntity('searchlog', task, function(error) {
             if(error) {
