@@ -111,7 +111,8 @@ app.post('/submit-suggestion', function(req, res) {
      
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            console.log(error);
+            console.error("Error occured when sending mail with options \n", mailOptions);
+            console.error(error);
             return res.send(-1);
         }
         console.log('Message %s sent: %s', info.messageId, info.response);
@@ -135,23 +136,23 @@ function group_by_subcat(entries) {
     return values;
 }
 
-function remove_duplicate_by_word_and_category(result) {
+function remove_duplicate_by_word_and_category(result, column) {
     var unique = [];
     var categories = [];
     var keep_rows = [];
     result.entries.forEach(function(row) {
         // If word is new or else if word category pair is new, then add it to results
         // the else case is when word and category is same, but more details might have other information
-        if (!row.hasOwnProperty(secondary_column)) {
-            console.log("Error: secondary_column doesn't exist in row ", row);
+        if (!row.hasOwnProperty(column)) {
+            console.error("Error: column '", column, "' doesn't exist in row\n", row);
             return result;
         }
-        if (!unique.includes(row[secondary_column]._) || (unique.includes(row[secondary_column]._) && categories[unique.indexOf(row[secondary_column]._)] != row.english_subcategory._)) {
-            unique.push(row[secondary_column]._);
+        if (!unique.includes(row[column]._) || (unique.includes(row[column]._) && categories[unique.indexOf(row[column]._)] != row.english_subcategory._)) {
+            unique.push(row[column]._);
             categories.push(row.english_subcategory._);
             keep_rows.push(row);
         } else {
-            index = unique.indexOf(row[secondary_column]._);
+            index = unique.indexOf(row[column]._);
             if ((row.part_of_speech._ == keep_rows[index].part_of_speech._) && (row.more_details._ != keep_rows[index].more_details._)) {
                 keep_rows[index].more_details._ = combine_more_details(row.more_details._, keep_rows[index].more_details._);
             }
@@ -303,9 +304,16 @@ app.get('/searching', function(req, res) {
 				data += "<tr><td><a href=\"/words/" + word.replace(/ /g, '+') + "\">" + word + "</a></td></tr>";
 			}, this);
 			data += "</tbody>";
-		} else {
-			data += "<thead><tr><td>No exact matches</td></tr></thead>";
-			data += "</thead>";
+		} else if (result.entries.length == 0) {
+            data += "<thead><tr><td>No exact matches</td></tr></thead>";
+            data += "</thead>";
+        }
+        else { // Error case
+            data += "<thead><tr><td>Hmm, something has gone wrong</td></tr></thead>";
+            data += "</thead>";
+            data += "<tbody><tr><td>Try again in some time</td></tr></tbody>";
+            console.error("Error occured in startswith_query with parameters ", search_param.toLowerCase(), next_word(search_param).toLowerCase());
+            console.error(error);
 		}
 		data += "</table>";
 
@@ -326,9 +334,13 @@ app.get('/searching', function(req, res) {
                     data += "<tr><td><a href=\"/words/" + word.replace(/ /g, '+') + "\">" + word + "</a></td></tr>";
                 }, this);
                 data += "</tbody>";
-            } else {
+            } else if (result.entries.length == 0) {
                 data += "<thead><tr><td>No other suggestions</td></tr></thead>";
                 data += "</thead>";
+            }
+            else { // Error case
+                console.errorerror("Error occured in containingwords_query with parameters ", search_param.toLowerCase(), next_word(search_param).toLowerCase());
+                console.errorerror(error);
             }
             data += "</table>";
 
@@ -347,8 +359,9 @@ app.get('/searching', function(req, res) {
             query: {'_': search_param, '$':'Edm.String'},
         };
         tableService.insertEntity('searchlog', task, function(error) {
-            if(!error) {
-            // Entity inserted
+            if(error) {
+                console.error("Error occured when inserting \n", task, "\n into searchlog");
+                console.error(error);
             }
         }); 
     }
@@ -356,7 +369,7 @@ app.get('/searching', function(req, res) {
 
 function get_word(req, res, next) {
     if (res.locals.word) {
-        console.log("Random word ", res.locals.word, " chosen");
+        console.info("Random word ", res.locals.word, " chosen");
         word = res.locals.word;
     }
     else 
@@ -392,7 +405,7 @@ function get_word(req, res, next) {
             var main_result = {"entries": []};
 
             // Remove duplicates
-            main_result.entries = remove_duplicate_by_word_and_category(result);
+            main_result.entries = remove_duplicate_by_word_and_category(result, secondary_column);
 
             // Pick entries which contain query word in any way
             var related_entries = [];
@@ -400,6 +413,10 @@ function get_word(req, res, next) {
                 if(!error && result.entries.length > 0) {
                     related_entries = unique_entries_by_column(result.entries, 'ParentWord');
                     related_entries = related_entries.filter(x => x.ParentWord._ !== word);
+                }
+                else if (error) {
+                    console.error("get_word(): Error occured in containingwords_query with parameter ", word.toLowerCase());
+                    console.error(error);
                 }
 
                 // Same subcategory words
@@ -438,6 +455,10 @@ function get_word(req, res, next) {
                 });
             });
         } else {
+            if (error) {
+                console.error("get_word(): Error occured in exact_word_query: ", "PartitionKey ge '", word.toLowerCase(), "' and PartitionKey lt '",  next_word(word).toLowerCase(), "' and " + primary_column + " eq '", word.toLowerCase(), "'");
+                console.error(error);
+            }
             res.render('words',
                     { title: 'A Southern Konkani Vocabulary Collection',
                     heading: 'A Southern Konkani Vocabulary Collection',
@@ -459,7 +480,7 @@ app.get("/words/:word", get_word);
 app.get("/discover", function(req, res, next) {
     // Generate random key and check if there is an entry with that row key
     var found = false;
-    var i = 0;
+    var error_counter = 0;
     
     var randomRowKey = Math.floor(Math.random() * Math.floor(80000));
 
@@ -478,7 +499,15 @@ app.get("/discover", function(req, res, next) {
                 res.redirect('/discover');
             }
         } else {
-            console.log(error);
+            console.error("Error occured in randomQuery with parameter '", String(randomRowKey), "'");
+            console.error(error);
+            error_counter += 1;
+            msleep(250*error_counter); // Sleep for milliseconds
+            if (error_counter < 6) {
+                res.redirect('/discover');
+            } else {
+                res.redirect('/');
+            }
         }
     });
 }, get_word);
@@ -500,8 +529,12 @@ app.get("/category/:category", function(req, res) {
         if(!error && result.entries.length > 0) {
             samesubcat_entries = unique_entries_by_column(result.entries, 'konkani_word');
             samesubcat_entries = sort_entries_by_column(samesubcat_entries, "weight");
-
             // TODO: Sort words by konkani
+        } else if (result.entries.length == 0) {
+            samesubcat_entries = []; // TODO: better handling here
+        } else {
+            console.error("Error occured when running samesubcat_query with parameter ", category);
+            console.error(error);
         }
 
         res.render('subcategory',

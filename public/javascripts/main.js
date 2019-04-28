@@ -30,7 +30,7 @@ $(function(){
     
     var currentRequest = null;
 
-    $('#search').on('keyup focus', function(e) {
+    $('#search').on('keyup', function(e) {
         // $(".homepage-container").animate({"margin-top": "0"}, "fast");
 
         if (e.key == 'Enter') {
@@ -55,6 +55,7 @@ $(function(){
             type: 'GET',
             data: 'search=' + query,
             url: '/searching',
+            timeout: 10000,
             beforeSend : function() {
                 // Code to show loader      
                 $('#results').html('<div class="d-flex justify-content-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>');
@@ -65,8 +66,14 @@ $(function(){
             success: function(data) {
                 $('#results').html(data);
             },
-            error:function(e){
-                $('#results').html("");
+            error:function(jqXHR, textStatus){
+                $('#results').html("Error occured, please try again in a while.");
+                if(textStatus === 'timeout')
+                {     
+                    console.log("Timed out while searching");
+                    console.log("GET /searching?search=", query);
+                    //do something. Try again perhaps?
+                }
             }
         });
     });
