@@ -66,7 +66,7 @@ var rollbar = new Rollbar({
     }
 });
 
-app.use(allowCrossDomain);
+// app.use(allowCrossDomain);
 
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
