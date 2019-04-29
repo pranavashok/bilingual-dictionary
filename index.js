@@ -2,8 +2,9 @@ require('dotenv').config({path : 'config.env'});
 
 var express = require('express');
 var app = express();
-var path = require('path');
 
+var path = require('path');
+var cors = require('cors');
 var azure = require('azure-storage');
 
 // For mailing
@@ -41,6 +42,8 @@ app.set('port', (process.env.PORT || 8080));
 
 app.set('views', './views')
 app.set('view engine', 'pug')
+
+app.use(cors());
 
 app.use(express.static(path.join(__dirname, 'public')));
 
