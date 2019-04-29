@@ -1,7 +1,7 @@
 require('dotenv').config({path : 'config.env'});
 
-var express = require('express')
-var app = express()
+var express = require('express');
+var app = express();
 var path = require('path');
 
 var azure = require('azure-storage');
@@ -44,7 +44,8 @@ app.set('view engine', 'pug')
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// app.use(robots({UserAgent: '*', Disallow: '/'}))
+var robots = require('express-robots-txt');
+app.use(robots({UserAgent: '*', Disallow: '/'}));
 
 app.locals.pretty = true;
 app.locals.env = config.env;
