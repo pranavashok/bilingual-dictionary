@@ -66,7 +66,11 @@ html
                     each val, key in menu
                         if key === "Contents"
                             li.nav-item.dropdown
-                                a.nav-link.dropdown-toggle(href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Contents
+                                if selected === key
+                                    a.nav-link.dropdown-toggle.active(href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true")= key
+                                else
+                                    a.nav-link.dropdown-toggle(href="" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true")= key
+                                
                                 div.dropdown-menu(aria-labelledby="navbarDropdownMenuLink")
                                     each v, k in val
                                         a.dropdown-item(href=v, title=k)= k
