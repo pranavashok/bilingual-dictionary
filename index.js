@@ -11,6 +11,15 @@ var nodemailer = require('nodemailer');
 var dateTime = require('node-datetime');
 var bodyParser = require('body-parser');
 
+// Sleep related
+var sleep = require('sleep');
+function msleep(n) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, n);
+}
+function sleep(n) {
+  msleep(n*1000);
+}
+
 // TODO: express-recaptcha
 
 var config = {
@@ -579,16 +588,15 @@ app.get("/category/:category", function(req, res) {
 
     var samesubcat_entries = [];
     tableService.queryEntities('dictkontoeng', samesubcat_query, null, function(error, result, response) {
-        if(!error && result.entries.length > 0) {
-            samesubcat_entries = unique_entries_by_column(result.entries, 'konkani_word');
-            samesubcat_entries = sort_entries_by_column(samesubcat_entries, "weight");
-            // TODO: Sort words by konkani
-        } else if (result.entries.length == 0) {
-            samesubcat_entries = []; // TODO: better handling here
-        } else {
+        if (error) {
             console.error("Error occured when running samesubcat_query with parameter ", category);
             console.error(error);
         }
+        else if(result.entries.length > 0) {
+            samesubcat_entries = unique_entries_by_column(result.entries, 'konkani_word');
+            samesubcat_entries = sort_entries_by_column(samesubcat_entries, "weight");
+            // TODO: Sort words by konkani
+        } 
 
         res.render('subcategory',
             { title: 'A Southern Konkani Vocabulary Collection - दक्षिण कोंकणी उतरावळि',
