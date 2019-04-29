@@ -68,7 +68,8 @@ var rollbar = new Rollbar({
     captureUnhandledRejections: true,
     payload: {
         environment: config.env
-    }
+    },
+    verbose: true, // This will now log to console.log, as well as Rollbar
 });
 
 app.use(function(req, res, next) {
@@ -138,8 +139,7 @@ app.post('/submit-suggestion', function(req, res) {
      
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            console.error("Error occured when sending mail with options \n", mailOptions);
-            console.error(error);
+            rollbar.error("Error occured when sending mail", error, {mailoptions: mailOptions}, req);
             return res.send(-1);
         }
         console.log('Message %s sent: %s', info.messageId, info.response);
@@ -163,7 +163,7 @@ function group_by_subcat(entries) {
     return values;
 }
 
-function remove_duplicate_by_word_and_category(result, column) {
+function remove_duplicate_by_word_and_category(req, result, column) {
     var unique = [];
     var categories = [];
     var keep_rows = [];
@@ -171,7 +171,7 @@ function remove_duplicate_by_word_and_category(result, column) {
         // If word is new or else if word category pair is new, then add it to results
         // the else case is when word and category is same, but more details might have other information
         if (!row.hasOwnProperty(column)) {
-            console.error("Error: column '", column, "' doesn't exist in row\n", row);
+            rollbar.error("Error: column doesn't exist in row", {row: row, column: column}, req);
             return result;
         }
         if (!unique.includes(row[column]._) || (unique.includes(row[column]._) && categories[unique.indexOf(row[column]._)] != row.english_subcategory._)) {
@@ -239,12 +239,12 @@ function combine_more_details(m1, m2) {
     return result;
 }
 
-function unique_entries_by_column(entries, column) {
+function unique_entries_by_column(req, entries, column) {
 	unique_entries = [];
 	unique_words = [];
 	entries.forEach(function(row) {
         if (!row.hasOwnProperty(column)) {
-            console.error("unique_entries_by_column() failed with \nEntries\n", entries, "\nColumn:", column);
+            rollbar.error("unique_entries_by_column() failed", {entries: entries, column: column}, req);
             return entries;
         }
 		if (!unique_words.includes(row[column]._)) {
@@ -331,8 +331,7 @@ app.get('/searching', function(req, res) {
             data += "<thead><tr><td>Hmm, something has gone wrong</td></tr></thead>";
             data += "</thead>";
             data += "<tbody><tr><td>Try again in some time</td></tr></tbody>";
-            console.error("Error occured in startswith_query with parameters ", search_param.toLowerCase(), next_word(search_param).toLowerCase());
-            console.error(error);
+            rollbar.error("Error occured in startswith_query", error, {param1: search_param.toLowerCase(), param2: next_word(search_param).toLowerCase()}, req);
         }
         else if(result.entries.length > 0) {
 			data += "<thead><tr><td>Dictionary-style matches</td></tr></thead>";
@@ -354,8 +353,7 @@ app.get('/searching', function(req, res) {
             data += "<table class=\"results-table\" id=\"suggested-results-table\">";
             
             if (error) { // Error case
-                console.error("Error occured in containingwords_query with parameters ", search_param.toLowerCase(), next_word(search_param).toLowerCase());
-                console.error(error);
+                rollbar.error("Error occured in containingwords_query", error, {param1:  search_param.toLowerCase(), param2: next_word(search_param).toLowerCase()}, req);
             }
             else if(result.entries.length > 0) {
                 data += "<thead><tr><td>Suggested matches</td></tr></thead>";
@@ -396,8 +394,7 @@ app.get('/searching', function(req, res) {
         };
         tableService.insertEntity('searchlog', task, function(error) {
             if(error) {
-                console.error("Error occured when inserting \n", task, "\n into searchlog");
-                console.error(error);
+                rollbar.error("Error occured when inserting entity into searchlog", error, {entity: task}, req);
             }
         }); 
     }
@@ -440,8 +437,7 @@ function get_word(req, res, next) {
 
     tableService.queryEntities(primary_table, exact_word_query, null, function(error, result, response) {
         if (error) {
-                console.error("get_word(): Error occured in exact_word_query: ", "PartitionKey ge '", word.toLowerCase(), "' and PartitionKey lt '",  next_word(word).toLowerCase(), "' and " + primary_column + " eq '", word.toLowerCase(), "'");
-                console.error(error);
+                rollbar.error("get_word(): Error occured in exact_word_query", error, {param1: word.toLowerCase(), param2: next_word(word).toLowerCase(), param3: primary_column, param4: word.toLowerCase()}, req);
                 // TODO replace below with error page
                 res.render('words',
                     { title: 'A Southern Konkani Vocabulary Collection',
@@ -459,17 +455,16 @@ function get_word(req, res, next) {
             var main_result = {"entries": []};
 
             // Remove duplicates
-            main_result.entries = remove_duplicate_by_word_and_category(result, secondary_column);
+            main_result.entries = remove_duplicate_by_word_and_category(req, result, secondary_column);
 
             // Pick entries which contain query word in any way
             var related_entries = [];
             tableService.queryEntities(suggest_table, containingwords_query, null, function(error, result, response) {
                 if (error) {
-                    console.error("get_word(): Error occured in containingwords_query with parameter ", word.toLowerCase());
-                    console.error(error);
+                    rollbar.error("get_word(): Error occured in containingwords_query", error, {param: word.toLowerCase()}, req);
                 }
                 else if(result.entries.length > 0) {
-                    related_entries = unique_entries_by_column(result.entries, 'ParentWord');
+                    related_entries = unique_entries_by_column(req, result.entries, 'ParentWord');
                     related_entries = related_entries.filter(x => x.ParentWord._ !== word);
                 }
                 else { // in case result.entries.length == 0
@@ -491,13 +486,12 @@ function get_word(req, res, next) {
                 var all_subcat_entries = [];
                 tableService.queryEntities(primary_table, samesubcat_query, null, function(error, result, response) {
                     if (error) {
-                        console.error("get_word(): Error occured in samesubcat_query with parameters: ", constraint_string.join(" or "), ...constraints);
-                        console.error(error);
+                        rollbar.error("get_word(): Error occured in samesubcat_query", error, {param1: constraint_string.join(" or "), param2: constraints}, req);
                     }
                     else if (result.entries.length > 0) {
                         all_subcat_entries = group_by_subcat(result.entries);
                         all_subcat_entries.forEach(function(list, index) {
-                            list = unique_entries_by_column(list, primary_column);
+                            list = unique_entries_by_column(req, list, primary_column);
                             all_subcat_entries[index] = sort_entries_by_column(list, "weight");
                         }, all_subcat_entries);
                     }
@@ -543,8 +537,7 @@ function get_word(req, res, next) {
         };
         tableService.insertEntity('searchlog', task, function(error) {
             if(error) {
-                console.error("Error occured when inserting \n", task, "\n into searchlog");
-                console.error(error);
+                rollbar.error("Error occured when inserting entity into searchlog", error, {entity: task}, req);
             }
         }); 
     }
@@ -574,8 +567,7 @@ app.get("/discover", function(req, res, next) {
                 res.redirect('/discover');
             }
         } else {
-            console.error("Error occured in randomQuery with parameter '", String(randomRowKey), "'");
-            console.error(error);
+            rollbar.error("Error occured in randomQuery", error, {param: String(randomRowKey)}, req);
             error_counter += 1; // TODO this won't really work because each time it gets reset to 0
             msleep(250*error_counter); // Sleep for milliseconds
             if (error_counter < 6) {
@@ -602,11 +594,10 @@ app.get("/category/:category", function(req, res) {
     var samesubcat_entries = [];
     tableService.queryEntities('dictkontoeng', samesubcat_query, null, function(error, result, response) {
         if (error) {
-            console.error("Error occured when running samesubcat_query with parameter ", category);
-            console.error(error);
+            rollbar.error("Error occured when running samesubcat_query", error, {param: category}, req);
         }
         else if(result.entries.length > 0) {
-            samesubcat_entries = unique_entries_by_column(result.entries, 'konkani_word');
+            samesubcat_entries = unique_entries_by_column(req, result.entries, 'konkani_word');
             samesubcat_entries = sort_entries_by_column(samesubcat_entries, "weight");
             // TODO: Sort words by konkani
         } 
@@ -619,6 +610,14 @@ app.get("/category/:category", function(req, res) {
         });
     });
 });
+
+app.get("*", function(req, res) {
+    rollbar.warning("A user tried to access an unavailable URL", req);
+    res.redirect('/');
+});
+
+// Use the rollbar error handler to send exceptions to your rollbar account
+app.use(rollbar.errorHandler());
 
 app.listen(app.get('port'), app.get('ipaddress'), function() {
 	console.log('App is running, server is listening on host:port ', app.get('ipaddress'), ':', app.get('port'));
