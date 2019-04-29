@@ -44,6 +44,7 @@ app.set('views', './views')
 app.set('view engine', 'pug')
 
 app.use(cors());
+app.options('*', cors());
 
 app.use(express.static(path.join(__dirname, 'public')));
 

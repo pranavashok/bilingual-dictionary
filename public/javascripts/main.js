@@ -87,8 +87,6 @@ $(function(){
         triggerSearch();
     });
 
-    setTimeout(function() {notThere();}, 1000);
-    
     $('span.KeyboardKey').on('click', function(e) {
         // $(".homepage-container").animate({"margin-top": "0"}, "fast");
         triggerSearch();
