@@ -310,6 +310,7 @@ app.get('/searching', function(req, res) {
 
     var containingwords_query = new azure.TableQuery()
                     .select(['RowKey', 'ParentWord', 'StrippedWord'])
+                    .top(30)
                     .where("PartitionKey ge ? and PartitionKey lt ?", search_param.toLowerCase(), next_word(search_param).toLowerCase());
 
 	tableService.queryEntities(primary_table, startswith_query, null, function(error, result, response) {
