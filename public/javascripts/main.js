@@ -30,23 +30,10 @@ $(function(){
     
     var currentRequest = null;
 
-    $('#search').on('keyup', function(e) {
-        // $(".homepage-container").animate({"margin-top": "0"}, "fast");
-
-        if (e.key == 'Enter') {
-            if ($("#dict-results-table > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(1) > a:nth-child(1)").length == 0) {
-                console.warn("Enter pressed before results appeared");
-                return;
-            } else {
-                window.location.href = $("#dict-results-table > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(1) > a:nth-child(1)")[0].href;
-                $('#results').html('<div class="d-flex justify-content-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>');
-                return;
-            }
-        }
-
+    function triggerSearch() {
         $("#specific-results").fadeTo(200,0.1);
 
-        var query = $(this).val();
+        var query = $("#search").val();
 
         if (!query) {
             if(currentRequest != null) {
@@ -83,6 +70,26 @@ $(function(){
                 }
             }
         });
+    }
+
+    $('#search').on('keyup', function(e) {
+        // $(".homepage-container").animate({"margin-top": "0"}, "fast");
+        if (e.key == 'Enter') {
+            if ($("#dict-results-table > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(1) > a:nth-child(1)").length == 0) {
+                console.warn("Enter pressed before results appeared");
+                return;
+            } else {
+                window.location.href = $("#dict-results-table > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(1) > a:nth-child(1)")[0].href;
+                $('#results').html('<div class="d-flex justify-content-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>');
+                return;
+            }
+        }
+        triggerSearch();
+    });
+
+    $('span.KeyboardKey').on('click', function(e) {
+        // $(".homepage-container").animate({"margin-top": "0"}, "fast");
+        triggerSearch();
     });
 
     $("#search").focusout(function(e) {

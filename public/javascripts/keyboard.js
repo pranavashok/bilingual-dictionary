@@ -14,9 +14,9 @@ window.addEventListener("load", function() {
     			var startPos = ctl.selectionStart;
     			var endPos = ctl.selectionEnd;
             	if(startPos != endPos)
-	            	ctl.value = ctl.value.slice(0, startPos) + this.innerHTML + ctl.value.slice(endPos, ctl.value.length)
+	            	ctl.value = ctl.value.slice(0, startPos) + this.innerHTML + ctl.value.slice(endPos, ctl.value.length);
 	            else
-	            	ctl.value = ctl.value.slice(0, startPos) + this.innerHTML + ctl.value.slice(startPos, ctl.value.length)
+	            	ctl.value = ctl.value.slice(0, startPos) + this.innerHTML + ctl.value.slice(startPos, ctl.value.length);
                 var match = encodeURIComponent(this.innerHTML).match(/E0/g);
                 var len;
                 if(match == null) {
