@@ -4,7 +4,7 @@ $(function(){
     $(".keyboard").hide();
 
     // collapseContents();
-    $('.contents-accordion').find(".inner").slideUp(600);
+    // $('.contents-accordion').find(".inner").slideUp(10);
 
     $('[data-toggle="tooltip"]').tooltip();
     

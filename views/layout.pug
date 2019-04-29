@@ -1,6 +1,6 @@
 doctype html
 
--var menu = { 'Search': '/', 'Discover!': '/discover', 'Contents': '/contents', 'Suggest': '/suggest', 'About': '/about', 'Contact': '/contact' };
+-var menu = { 'Search': '/', 'Discover!': '/discover', 'Contents': {'Riddles': '/category/Riddles/', 'Proverbs': '/category/Proverbs', 'Idioms': '/category/Idioms', 'All': '/contents'}, 'Suggest': '/suggest', 'About': '/about', 'Contact': '/contact' };
 
 html
     head
@@ -64,11 +64,18 @@ html
                 a.navbar-brand(href="/", style="color: #000; font-weight: 500;") दक्षिण कोंकणी उतरावळि
                 ul.navbar-nav.mr-auto
                     each val, key in menu
-                        li.nav-item
-                            if selected === key
-                                a.nav-link.active(href=val, title=key)= key
-                            else
-                                a.nav-link(href=val, title=key)= key
+                        if key === "Contents"
+                            li.nav-item.dropdown
+                                a.nav-link.dropdown-toggle(href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") Contents
+                                div.dropdown-menu(aria-labelledby="navbarDropdownMenuLink")
+                                    each v, k in val
+                                        a.dropdown-item(href=v, title=k)= k
+                        else
+                            li.nav-item
+                                if selected === key
+                                    a.nav-link.active(href=val, title=key)= key
+                                else
+                                    a.nav-link(href=val, title=key)= key
         div#main
             h1 #[a(href="/") #{heading_konkani}]
             h1 #[a(href="/") #{heading}]
