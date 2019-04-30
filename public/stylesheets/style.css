@@ -611,6 +611,10 @@ ul.contents-accordion > li.expandable > ul > li.expandable:before {
   font-size: 1.1rem;
 }
 
+ul.inner {
+  display: none;
+}
+
 .contents-container {
     height: 100%;
     display: -webkit-box;

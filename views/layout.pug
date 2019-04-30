@@ -2,8 +2,15 @@ doctype html
 
 -var menu = { 'Search': '/', 'Discover!': '/discover', 'Contents': {'Riddles': '/category/Riddles/', 'Proverbs': '/category/Proverbs', 'Idioms': '/category/Idioms', 'All': '/contents'}, 'Suggest': '/suggest', 'About': '/about', 'Contact': '/contact' };
 
-html
+html(lang="en")
     head
+        meta(charset="utf-8")
+        meta(name="author", content="Surya Ashok")
+        meta(name="designer", content="Pranav Ashok")
+        meta(name="description", content="Sourthern Konkani - English dictionary and vocabulary collection. A rich resource with more than 14,000 words...")
+        meta(name="keywords", content="konkani,english,dictionary,vocabulary,collection,konkani dictionary,konkani vocabulary,konkani english")
+        meta(name="viewport", content="width=device-width, initial-scale=1, shrink-to-fit=no")
+
         title= title
         
         block stylesheets
@@ -48,8 +55,6 @@ html
         script(type="text/javascript", src="/javascripts/pramukhime.js", crossorigin="anonymous")
         script(type="text/javascript", src="/javascripts/pramukhindic.js", crossorigin="anonymous")
         
-        meta(charset="utf-8")
-        meta(name="viewport", content="width=device-width, initial-scale=1, shrink-to-fit=no")
     
     block link
         -var selected = 'Search'; //default

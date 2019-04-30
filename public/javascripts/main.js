@@ -3,9 +3,6 @@ $(function(){
     // keyboard doesn't pop up when using onscreen keyboard    
     $(".keyboard").hide();
 
-    // collapseContents();
-    // $('.contents-accordion').find(".inner").slideUp(10);
-
     $('[data-toggle="tooltip"]').tooltip();
     
     var currentRequest = null;
