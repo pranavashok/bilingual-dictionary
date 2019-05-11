@@ -48,8 +48,8 @@ app.options('*', cors());
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-var robots = require('express-robots-txt');
-app.use(robots({UserAgent: '*', Disallow: ''}));
+// var robots = require('express-robots-txt');
+// app.use(robots({UserAgent: '*', Disallow: ''}));
 
 app.locals.pretty = true;
 app.locals.env = config.env;
