@@ -127,6 +127,7 @@
     "type-is": "^1.6.16",
     "uglify-js": "^3.4.9",
     "uglify-to-browserify": "^2.1.0",
+    "universal-analytics": "^0.4.20",
     "unpipe": "^1.0.0",
     "utils-merge": "^1.0.1",
     "vary": "^1.1.2",

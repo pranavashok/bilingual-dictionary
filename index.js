@@ -7,6 +7,9 @@ var path = require('path');
 var cors = require('cors');
 var azure = require('azure-storage');
 
+// google analytics serverside
+// var ua = require('universal-analytics');
+
 // For mailing
 var nodemailer = require('nodemailer');
 var dateTime = require('node-datetime');
