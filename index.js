@@ -498,7 +498,6 @@ function get_word(req, res, next) {
                             all_subcat_entries[index] = sort_entries_by_column(list, "weight");
                         }, all_subcat_entries);
                     }
-
                     res.render('words',
                         { title: 'A Southern Konkani Vocabulary Collection',
                         heading: 'A Southern Konkani Vocabulary Collection',
