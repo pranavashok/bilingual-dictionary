@@ -16,7 +16,6 @@ var dateTime = require('node-datetime');
 var bodyParser = require('body-parser');
 
 // Sleep related
-var sleep = require('sleep');
 function msleep(n) {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, n);
 }
