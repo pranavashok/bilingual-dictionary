@@ -246,7 +246,6 @@ function unique_entries_by_column(req, entries, column) {
 	unique_words = [];
 	entries.forEach(function(row) {
         if (!row.hasOwnProperty(column)) {
-            console.log("unique_entries_by_column() failed", {entries: entries, column: column}, req)
             rollbar.error("unique_entries_by_column() failed", {entries: entries, column: column}, req);
             return entries;
         }
