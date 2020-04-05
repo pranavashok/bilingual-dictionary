@@ -2,10 +2,6 @@ require('dotenv').config({path : 'config.env'});
 let throng = require('throng');
 let Queue = require("bull");
 let azure = require('azure-storage');
-let Redis = require('ioredis');
-
-// Connect to a local redis intance locally, and the Heroku-provided URL in production
-let REDIS_URL = process.env.REDIS_URL || "redis://127.0.0.1:6379";
 
 // Spin up multiple processes to handle jobs to take advantage of more CPU cores
 // See: https://devcenter.heroku.com/articles/node-concurrency for more info
@@ -32,10 +28,12 @@ let config = {
  
 let tableService = azure.createTableService();
 
-let client = new Redis(REDIS_URL);
-let subscriber = new Redis(REDIS_URL);
+let Redis = require('ioredis');
 
-let opts = {
+let client = new Redis(process.env.REDIS_URL);
+let subscriber = new Redis(process.env.REDIS_URL);
+
+var opts = {
   createClient: function (type) {
     switch (type) {
       case 'client':
@@ -43,7 +41,7 @@ let opts = {
       case 'subscriber':
         return subscriber;
       default:
-        return new Redis(REDIS_URL);
+        return new Redis(process.env.REDIS_URL);
     }
   }
 }

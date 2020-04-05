@@ -41,11 +41,10 @@ let tableService = azure.createTableService();
 // Async queue for Azure queries making use of Bull and Redis
 // Reuse Redis connections, since Heroku limits number of connections
 // https://github.com/OptimalBits/bull/blob/develop/PATTERNS.md#reusing-redis-connections
-var {REDIS_URL} = process.env.REDIS_URL
+let Redis = require('ioredis');
 
-var Redis = require('ioredis')
-var client = new Redis(REDIS_URL);
-var subscriber = new Redis(REDIS_URL);
+let client = new Redis(process.env.REDIS_URL);
+let subscriber = new Redis(process.env.REDIS_URL);
 
 var opts = {
   createClient: function (type) {
@@ -55,7 +54,7 @@ var opts = {
       case 'subscriber':
         return subscriber;
       default:
-        return new Redis(REDIS_URL);
+        return new Redis(process.env.REDIS_URL);
     }
   }
 }
