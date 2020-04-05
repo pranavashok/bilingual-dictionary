@@ -112,7 +112,6 @@ function log_search(search_param, primary_column) {
 
 function query_azure(primary_table, secondary_table, primary_column, secondary_column, suggest_table, search_param) {
     return new Promise((resolve, reject) => {
-        console.log("Inside query_azure() with parameter " + search_param);
         try {
             var startswith_query = new azure.TableQuery()
                         .select([primary_column, 'searchable'])
@@ -126,7 +125,6 @@ function query_azure(primary_table, secondary_table, primary_column, secondary_c
 
             let promise = new Promise((resolve, reject) => {
                 tableService.queryEntities(primary_table, startswith_query, null, function(error, result, response) {
-                    console.log("Inside first queryEntities with parameter " + search_param);
                     if (error) {
                         reject({error: error});
                     }
@@ -142,7 +140,6 @@ function query_azure(primary_table, secondary_table, primary_column, secondary_c
                 return new Promise((resolve, reject) => {
                     tableService.queryEntities(suggest_table, containingwords_query, null, function(error, result, response) {
                         reject({search_param: search_param, unique_words: unique_words, error: error});
-                        console.log("Inside second queryEntities with parameter " + search_param);
                         if (error) {
                             // In case unique_words query succeeds, but suggested words query fails, then reject the current promise
                             reject({search_param: search_param, unique_words: unique_words, error: error});
