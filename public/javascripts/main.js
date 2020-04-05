@@ -1,4 +1,9 @@
 $(function(){
+    // Allow use of Date.now() on IE8 and earlier
+    if (!Date.now) {
+        Date.now = function() { return new Date().getTime(); }
+    }
+
     // In order to make keyboard readonly, so that mobile 
     // keyboard doesn't pop up when using onscreen keyboard    
     $(".keyboard").hide();
@@ -7,46 +12,144 @@ $(function(){
     
     var currentRequest = null;
 
-    function triggerSearch() {
-        $("#specific-results").fadeTo(200,0.1);
+    // Store all jobs in progress
+    let jobs = {};
 
-        var query = $("#search").val();
+    // Kick off a new job by POST-ing to the server
+    async function addJob(query) {
+        let res = await fetch("searching/", {
+            method: 'POST', 
+            body: JSON.stringify({search: query}),
+            headers: new Headers({
+                'Content-Type': 'application/json'
+            })
+        });
+        let job = await res.json();
+        jobs[job.id] = {id: job.id, timestamp: Date.now(), state: "queued"};
+        render();
+    }
 
-        if (!query) {
-            if(currentRequest != null) {
-                currentRequest.abort();
+    // Fetch updates for each job
+    // Possible states: completed, failed, delayed, active, waiting, paused, stuck or null.
+    async function updateJobs() {
+        for (let id of Object.keys(jobs)) {
+            let res = await fetch(`/job/${id}`);
+            let result = await res.json();
+            if (!!jobs[id]) {
+                if (result.state == "failed") {
+                    delete jobs[id];
+                } else {
+                    jobs[id].state = result.state;
+                    jobs[id].returnvalue = result.returnvalue;
+                }
             }
-            $('#results').html("");
-            return;
+            render();
+        }
+    }
+
+    setInterval(updateJobs, 200);
+
+    // Update the UI
+    function render() {
+        // TODO: Get the latest result from the job and put it inside '#results'
+        max = 0;
+        latestCompletedJob = null;
+        for (let id of Object.keys(jobs)) {
+            if (jobs[id].timestamp > max && jobs[id].state == "completed") {
+                max = jobs[id].timestamp;
+                latestCompletedJob = id;
+            }
         }
 
-        currentRequest = $.ajax({
-            type: 'GET',
-            data: 'search=' + query,
-            url: '/searching',
-            timeout: 10000,
-            beforeSend : function() {
-                // Code to show loader      
+        // TODO: In case all the jobs are failing, report error
+        // html_result = "<table class=\"results-table\" id=\"dict-results-table\">";
+        // html_result += "<thead><tr><td>Hmm, something has gone wrong</td></tr></thead>";
+        // html_result += "</thead>";
+        // html_result += "<tbody><tr><td>Try again in some time</td></tr></tbody>";
+        // html_result += "</table>";
+
+        if (latestCompletedJob === null) {
+            if (!!document.getElementsByClassName("spinner-border")) {
                 $('#results').html('<div class="d-flex justify-content-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>');
-                if(currentRequest != null) {
-                    currentRequest.abort();
-                }
-            },
-            success: function(data) {
-                $('#results').html(data);
-            },
-            error:function(jqXHR, textStatus){
-                if(textStatus === 'timeout')
-                {     
-                    console.log("Timed out while searching");
-                    console.log("GET /searching?search=", query);
-                    //do something. Try again perhaps?
-                }
-                if (textStatus !== 'abort') {
-                    $('#results').html("Error occured, please try again in a while.");
-                }
             }
-        });
+        }
+        else {
+            job = jobs[latestCompletedJob];
+            if (job.returnvalue.unique_words != null) {
+                unique_words = job.returnvalue.unique_words;
+                html_result = "<table class=\"results-table\" id=\"dict-results-table\">";
+                html_result += "<thead><tr><td>Dictionary-style matches</td></tr></thead>";
+                html_result += "<tbody>";		
+                unique_words.forEach(function(word) {
+                    html_result += "<tr><td><a href=\"/words/" + word.replace(/ /g, '+') + "\">" + word + "</a></td></tr>";
+                }, this);
+                html_result += "</tbody>";
+            } else {
+                html_result += "<thead><tr><td>No exact matches</td></tr></thead>";
+                html_result += "</thead>";
+            }
+            html_result += "</table>";
+            html_result += "<table class=\"results-table\" id=\"suggested-results-table\">";
+            if (job.returnvalue.unique_suggested_words != null) {
+                unique_suggested_words = job.returnvalue.unique_suggested_words;
+                html_result += "<thead><tr><td>Suggested matches</td></tr></thead>";
+                html_result += "<tbody>";
+                unique_suggested_words.forEach(function(word) {
+                    html_result += "<tr><td><a href=\"/words/" + word.replace(/ /g, '+') + "\">" + word + "</a></td></tr>";
+                }, this);
+                html_result += "</tbody>";
+            } else {
+                html_result += "<thead><tr><td>No other suggestions</td></tr></thead>";
+                html_result += "</thead>";
+            }
+            html_result += "</table>";
+            $('#results').html(html_result);
+        }
+        delete jobs[latestCompletedJob];
+    }
+
+    function triggerSearch() {
+        let query = $("#search").val();
+        $("#specific-results").fadeTo(200,0.1);
+        if (!query) {
+            $('#results').html("");
+            return;
+        } else {
+            addJob(query);
+        }
+
+        // currentRequest = $.ajax({
+        //     type: 'GET',
+        //     data: 'search=' + query,
+        //     url: '/searching',
+        //     timeout: 10000,
+        //     beforeSend : function() {
+        //         // Code to show loader   
+        //         console.log(`Querying ${query}...`)   
+        //         $('#results').html('<div class="d-flex justify-content-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>');
+        //         if(currentRequest != null) {
+        //             currentRequest.abort();
+        //         }
+        //     },
+        //     success: function(data) {
+        //         console.log(`Success, original query: ${query}, result for query: ${data.search_param}`);
+        //         if (query === data.search_param) {
+        //             $('#results').html(data.result);
+        //         }
+        //     },
+        //     error:function(jqXHR, textStatus){
+        //         console.log("Entered error");
+        //         if(textStatus === 'timeout')
+        //         {     
+        //             console.log("Timed out while searching");
+        //             console.log("GET /searching?search=", query);
+        //             //do something. Try again perhaps?
+        //         }
+        //         if (textStatus !== 'abort') {
+        //             $('#results').html("Error occured, please try again in a while.");
+        //         }
+        //     }
+        // });
     }
 
     $('#search').on('keyup', function(e) {
@@ -216,5 +319,4 @@ function onSceenKeyboard() {
         $(".keyboard").hide("slide");
         $("#specific-results").fadeTo(0,1);
     }        
-
 }
