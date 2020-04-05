@@ -5,7 +5,6 @@ var app = express();
 
 var path = require('path');
 var cors = require('cors');
-var azure = require('azure-storage');
 
 // google analytics serverside
 // var ua = require('universal-analytics');
@@ -24,20 +23,45 @@ function sleep(n) {
 }
 
 // TODO: express-recaptcha
+let config = {
+    storageAccount: process.env.AZURE_STORAGE_ACCOUNT,
+    storageAccessKey: process.env.AZURE_STORAGE_ACCESS_KEY,
+    connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
+    // Rollbar
+    post_client_item: process.env.POST_CLIENT_ITEM_ACCESS_TOKEN,
+    post_server_item: process.env.POST_SERVER_ITEM_ACCESS_TOKEN,
+    env: process.env.NODE_ENV,
+    db1: "dictengtokon",
+    db2: "dictkontoeng"
+ };
 
-var config = {
-   storageAccount: process.env.AZURE_STORAGE_ACCOUNT,
-   storageAccessKey: process.env.AZURE_STORAGE_ACCESS_KEY,
-   connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
-   // Rollbar
-   post_client_item: process.env.POST_CLIENT_ITEM_ACCESS_TOKEN,
-   post_server_item: process.env.POST_SERVER_ITEM_ACCESS_TOKEN,
-   env: process.env.NODE_ENV,
-   db1: "dictengtokon",
-   db2: "dictkontoeng"
-};
+let azure = require('azure-storage');
+let tableService = azure.createTableService();
 
-var tableService = azure.createTableService();
+// Async queue for Azure queries making use of Bull and Redis
+// Reuse Redis connections, since Heroku limits number of connections
+// https://github.com/OptimalBits/bull/blob/develop/PATTERNS.md#reusing-redis-connections
+var {REDIS_URL} = process.env.REDIS_URL
+
+var Redis = require('ioredis')
+var client = new Redis(REDIS_URL);
+var subscriber = new Redis(REDIS_URL);
+
+var opts = {
+  createClient: function (type) {
+    switch (type) {
+      case 'client':
+        return client;
+      case 'subscriber':
+        return subscriber;
+      default:
+        return new Redis(REDIS_URL);
+    }
+  }
+}
+
+var Queue = require('bull');
+const azure_queue = new Queue('azure-queue', opts);
 
 app.set('ipaddress', (process.env.IP || "0.0.0.0"));
 app.set('port', (process.env.PORT || 8080));
@@ -66,8 +90,8 @@ app.use(function(req, res, next) {
 var Rollbar = require("rollbar");
 var rollbar = new Rollbar({
     accessToken: config.post_server_item,
-    captureUncaught: true,
-    captureUnhandledRejections: true,
+    captureUncaught: false,
+    captureUnhandledRejections: false,
     payload: {
         environment: config.env
     },
@@ -291,8 +315,11 @@ function next_word(word) {
 	return word_upper;
 }
 
-app.get('/searching', function(req, res) {
-	search_param = req.query.search;
+app.post('/searching', async function(req, res) {
+    console.log(`req.query: `);
+    console.log(req.body);
+    search_param = req.body.search;
+    console.log(`search_param: ${search_param}`);
 
     // Handle empty requests
     if (search_param === "") {
@@ -315,90 +342,36 @@ app.get('/searching', function(req, res) {
         suggest_table = 'suggestkon';
 	}
 	
-	var data = "";
+    var data = "";
+    
+    let job = await azure_queue.add({
+        primary_column: primary_column,
+        secondary_column: secondary_column,
+        primary_table: primary_table,
+        secondary_table: secondary_table,
+        suggest_table: suggest_table,
+        search_param: search_param
+    });
 
-	var startswith_query = new azure.TableQuery()
-					.select([primary_column, 'searchable'])
-					.top(30)
-					.where("PartitionKey ge ? and PartitionKey lt ?", search_param.toLowerCase(), next_word(search_param).toLowerCase());
+    res.json({id: job.id});
+});
 
-    var containingwords_query = new azure.TableQuery()
-                    .select(['RowKey', 'ParentWord', 'StrippedWord'])
-                    .top(30)
-                    .where("PartitionKey ge ? and PartitionKey lt ?", search_param.toLowerCase(), next_word(search_param).toLowerCase());
+app.get('/job/:id', async (req, res) => {
+    let id = req.params.id;
+    let job = await azure_queue.getJob(id);
 
-	tableService.queryEntities(primary_table, startswith_query, null, function(error, result, response) {
-		data += "<table class=\"results-table\" id=\"dict-results-table\">";
-		if (error) { // Error case
-            data += "<thead><tr><td>Hmm, something has gone wrong</td></tr></thead>";
-            data += "</thead>";
-            data += "<tbody><tr><td>Try again in some time</td></tr></tbody>";
-            rollbar.error("Error occured in startswith_query", error, {param1: search_param.toLowerCase(), param2: next_word(search_param).toLowerCase()}, req);
+    if (job === null) {
+        res.status(404).end();
+    } else {
+        let state = await job.getState();
+        let returnvalue = job.returnvalue;
+        if (state == "completed") {
+            res.json({id, state, returnvalue});
+        } else {
+            let progress = job._progress;
+            let reason = job.failedReason;
+            res.json({ id, state, progress, reason });
         }
-        else if(result.entries.length > 0) {
-			data += "<thead><tr><td>Dictionary-style matches</td></tr></thead>";
-			data += "<tbody>";
-			searchable_entries = remove_nonsearchable(result.entries, primary_column, 0);
-			var unique_words = unique_words_by_column(searchable_entries, primary_column);
-			unique_words.forEach(function(word) {
-				data += "<tr><td><a href=\"/words/" + word.replace(/ /g, '+') + "\">" + word + "</a></td></tr>";
-			}, this);
-			data += "</tbody>";
-		} else { // if (result.entries.length == 0)
-            data += "<thead><tr><td>No exact matches</td></tr></thead>";
-            data += "</thead>";
-        }
-		data += "</table>";
-
-        // Pick entries which contain query word in any way
-        tableService.queryEntities(suggest_table, containingwords_query, null, function(error, result, response) {
-            data += "<table class=\"results-table\" id=\"suggested-results-table\">";
-            
-            if (error) { // Error case
-                rollbar.error("Error occured in containingwords_query", error, {param1:  search_param.toLowerCase(), param2: next_word(search_param).toLowerCase()}, req);
-            }
-            else if(result.entries.length > 0) {
-                data += "<thead><tr><td>Suggested matches</td></tr></thead>";
-                data += "<tbody>";
-
-                var unique_suggested_words = unique_words_by_column(result.entries, 'ParentWord');
-                // Remove words which are already present in unique_words
-                if (unique_words) {
-                    unique_suggested_words = unique_suggested_words.filter(x => unique_words.indexOf(x) < 0 );
-                }
-
-                unique_suggested_words.forEach(function(word) {
-                    data += "<tr><td><a href=\"/words/" + word.replace(/ /g, '+') + "\">" + word + "</a></td></tr>";
-                }, this);
-                data += "</tbody>";
-            }
-            else { // if (result.entries.length == 0)
-                data += "<thead><tr><td>No other suggestions</td></tr></thead>";
-                data += "</thead>";
-            }
-            
-            data += "</table>";
-
-            res.send(data);
-        });
-
-        // TODO: Ignore first word and pick stuff which are edit distance close, order them alphabetically
-
-	});
-
-    // Log searches
-    if (search_param.length >= 3 && config.env === "production") {
-        var task = {
-            PartitionKey : {'_': primary_column, '$':'Edm.String'},
-            RowKey: {'_': String(Date.now()), '$':'Edm.String'},
-            query: {'_': search_param, '$':'Edm.String'},
-            complete: {'_': false, '$': 'Edm.Boolean'}
-        };
-        tableService.insertEntity('searchlog', task, function(error) {
-            if(error) {
-                rollbar.error("Error occured when inserting entity into searchlog", error, {entity: task}, req);
-            }
-        }); 
     }
 });
 
