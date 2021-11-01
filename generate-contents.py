@@ -77,7 +77,7 @@ for i in range(0, len(lines)):
         eng, kon = lines[i].strip().split(";")
         eng = eng.strip()
         kon = kon.strip()
-        print("%sa.contents-toggle(href=\"/category/%s\", data-toggle=\"tooltip\", data-placement=\"right\", title=\"%s\") %s" % (" "*(2*whitespace+2+basewsp)*4, eng.replace("/", "%2F"), eng, kon))
+        print("%sa.contents-toggle(href=\"/category/%s\", data-toggle=\"tooltip\", data-placement=\"right\", title=\"%s\") %s" % (" "*(2*whitespace+2+basewsp)*4, kon.replace("/", "%2F"), eng, kon))
     else:
         eng, kon = lines[i].strip().split(";")
         eng = eng.strip()
