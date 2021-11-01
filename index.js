@@ -590,22 +590,45 @@ app.get("/discover", function(req, res, next) {
 app.get("/category/:category", function(req, res) {
     category = req.params.category.replace(/\+/g, ' ');
 
+    if (category.search(/^([\x00-\xFF]+)/) != -1) {
+		primary_column = "english_word";
+		secondary_column = "konkani_word";
+		primary_table = config.db1;
+		secondary_table = config.db2;
+        primary_subcategory = 'english_subcategory';
+        secondary_subcategory = 'konkani_subcategory';
+	} else {
+		primary_column = "konkani_word";
+		secondary_column = "english_word";
+		primary_table = config.db2;
+		secondary_table = config.db1;
+        primary_subcategory = 'konkani_subcategory';
+        secondary_subcategory = 'english_subcategory';
+	}
+
     // TODO: Update browse_count
 
     // TODO: Related words, same subcategory words
 
     // Same subcategory words
-    var samesubcat_query = new azure.TableQuery()
-                .select(['konkani_word', 'english_subcategory', 'konkani_subcategory', 'weight'])
-                .where('english_subcategory eq ?', category);
+    var samesubcat_query;
+    if (primary_column == 'konkani_word') {
+        samesubcat_query = new azure.TableQuery()
+                    .select([primary_column, secondary_subcategory, primary_subcategory, 'weight'])
+                    .where('konkani_subcategory eq ?', category);
+    } else {
+        samesubcat_query = new azure.TableQuery()
+                    .select([primary_column, secondary_subcategory, primary_subcategory, 'weight'])
+                    .where('english_subcategory eq ?', category);
+    }
 
     var samesubcat_entries = [];
-    tableService.queryEntities('dictkontoeng', samesubcat_query, null, function(error, result, response) {
+    tableService.queryEntities(primary_table, samesubcat_query, null, function(error, result, response) {
         if (error) {
             rollbar.error("Error occured when running samesubcat_query", error, {param: category}, req);
         }
         else if(result.entries.length > 0) {
-            samesubcat_entries = unique_entries_by_column(req, result.entries, 'konkani_word');
+            samesubcat_entries = unique_entries_by_column(req, result.entries, primary_column);
             samesubcat_entries = sort_entries_by_column(samesubcat_entries, "weight");
             // TODO: Sort words by konkani
         } 
