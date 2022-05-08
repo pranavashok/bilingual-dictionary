@@ -49,7 +49,7 @@ $(function(){
         });
     }
 
-    $('#search').on('keyup', function(e) {
+    $('#search').on('focus', function(e) {
         // $(".homepage-container").animate({"margin-top": "0"}, "fast");
         $(".introduction").remove();
 
