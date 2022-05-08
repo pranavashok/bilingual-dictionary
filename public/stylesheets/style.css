@@ -427,9 +427,9 @@ ul.bibliography li {
   font-size: 1rem;
 }
 
-@media screen and (max-height: 630px) {
+@media screen and (max-height: 675px) {
   .introduction {
-    font-size: 0.7rem;
+    display: none;
   }
 }
 

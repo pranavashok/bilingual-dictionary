@@ -49,7 +49,7 @@ $(function(){
         });
     }
 
-    $('#search').on('focus', function(e) {
+    $(document).on('click', "#search, nav", function(e) {
         // $(".homepage-container").animate({"margin-top": "0"}, "fast");
         $(".introduction").remove();
 
