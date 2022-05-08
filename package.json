@@ -6,7 +6,8 @@
   },
   "version": "1.1.0",
   "engines": {
-    "node": ">=17.8.0"
+    "node": "17.x",
+    "npm": "8.x"
   },
   "description": "konkani <-> english dictionary",
   "main": "index.js",
