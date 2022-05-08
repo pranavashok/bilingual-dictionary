@@ -52,7 +52,9 @@ $(function(){
     $(document).on('click', "#search, nav", function(e) {
         // $(".homepage-container").animate({"margin-top": "0"}, "fast");
         $(".introduction").remove();
+    });
 
+    $("#search").on('keyup', function(e) {
         if (e.key == 'Enter') {
             if ($("#dict-results-table > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(1) > a:nth-child(1)").length == 0) {
                 console.warn("Enter pressed before results appeared");
