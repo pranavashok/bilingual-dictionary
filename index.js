@@ -246,7 +246,7 @@ function unique_entries_by_column(req, entries, column) {
 	unique_words = [];
 	entries.forEach(function(row) {
         if (!row.hasOwnProperty(column)) {
-            rollbar.error("unique_entries_by_column() failed", {entries: entries, column: column}, req);
+            rollbar.error("unique_entries_by_column() failed 2", {entries: entries, column: column}, req);
             return entries;
         }
 		if (!unique_words.includes(row[column]._)) {
@@ -493,6 +493,11 @@ function get_word(req, res, next) {
                     else if (result.entries.length > 0) {
                         all_subcat_entries = group_by_subcat(result.entries);
                         all_subcat_entries.forEach(function(list, index) {
+                            list.forEach(function(row) {
+                                if (!row.hasOwnProperty(primary_column)) {
+                                    rollbar.error("unique_entries_by_column() failed 3", {list: list, primary_column: primary_column}, req);
+                                }
+                            });
                             list = unique_entries_by_column(req, list, primary_column);
                             all_subcat_entries[index] = sort_entries_by_column(list, "weight");
                         }, all_subcat_entries);
@@ -628,6 +633,11 @@ app.get("/category/:category", function(req, res) {
             rollbar.error("Error occured when running samesubcat_query", error, {param: category}, req);
         }
         else if(result.entries.length > 0) {
+            result.entries.forEach(function(row) {
+                if (!row.hasOwnProperty(primary_column)) {
+                    rollbar.error("unique_entries_by_column() failed 1", {result_entries: result.entries, primary_column: primary_column}, req);
+                }
+            });
             samesubcat_entries = unique_entries_by_column(req, result.entries, primary_column);
             samesubcat_entries = sort_entries_by_column(samesubcat_entries, "weight");
             // TODO: Sort words by konkani
