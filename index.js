@@ -98,7 +98,7 @@ app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 app.get("/", function (req, res) {
   res.render("index", {
-    title: "A Southern Konkani Vocabulary Collection",
+    title: "Home - South Konkani-English Dictionary",
     heading: "A Southern Konkani Vocabulary Collection",
     heading_konkani: "दक्षिण कोंकणी उतरावळि",
   });
@@ -106,7 +106,7 @@ app.get("/", function (req, res) {
 
 app.get("/about", function (req, res) {
   res.render("about", {
-    title: "A Southern Konkani Vocabulary Collection",
+    title: "About - South Konkani-English Dictionary",
     heading: "A Southern Konkani Vocabulary Collection",
     heading_konkani: "दक्षिण कोंकणी उतरावळि",
   });
@@ -114,7 +114,7 @@ app.get("/about", function (req, res) {
 
 app.get("/contact", function (req, res) {
   res.render("contact", {
-    title: "A Southern Konkani Vocabulary Collection",
+    title: "Contact - South Konkani-English Dictionary",
     heading: "A Southern Konkani Vocabulary Collection",
     heading_konkani: "दक्षिण कोंकणी उतरावळि",
   });
@@ -122,7 +122,7 @@ app.get("/contact", function (req, res) {
 
 app.get("/suggest", function (req, res) {
   res.render("suggest", {
-    title: "A Southern Konkani Vocabulary Collection",
+    title: "Suggest - South Konkani-English Dictionary",
     heading: "A Southern Konkani Vocabulary Collection",
     heading_konkani: "दक्षिण कोंकणी उतरावळि",
   });
@@ -130,7 +130,7 @@ app.get("/suggest", function (req, res) {
 
 app.get("/contents", function (req, res) {
   res.render("contents", {
-    title: "A Southern Konkani Vocabulary Collection",
+    title: "Contents - South Konkani-English Dictionary",
     heading: "A Southern Konkani Vocabulary Collection",
     heading_konkani: "दक्षिण कोंकणी उतरावळि",
   });
@@ -501,7 +501,8 @@ function renderWordPage(res, word, words, related_words, same_subcat_words) {
   res.render(
     "words",
     {
-      title: "A Southern Konkani Vocabulary Collection",
+      title:
+        "Meaning of " + word + " in Konkani - South Konkani-English Dictionary",
       heading: "A Southern Konkani Vocabulary Collection",
       heading_konkani: "दक्षिण कोंकणी उतरावळि",
       query: word,
@@ -1331,7 +1332,7 @@ app.get("/category/:category", async function (req, res, next) {
     }
 
     res.render("subcategory", {
-      title: "A Southern Konkani Vocabulary Collection - दक्षिण कोंकणी उतरावळि",
+      title: category + " in Konkani - South Konkani-English Dictionary",
       heading: "A Southern Konkani Vocabulary Collection",
       heading_konkani: "दक्षिण कोंकणी उतरावळि",
       same_subcat_words: samesubcat_entries,
