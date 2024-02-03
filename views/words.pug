@@ -44,17 +44,17 @@ block content
                         li
                             - var is_konkani = true; if (query.search(/^([x00-\xFF]+)/) != -1) { is_konkani = false; }
                             if is_konkani
-                                a(href='/words/' + word.english_word._.replace(/ /g, '+'), data-toggle="tooltip", data-placement="right", data-offset="0 10px", title=word.english_subcategory._) #{word.english_word._}
+                                a(href='/words/' + word.english_word.replace(/ /g, '+'), data-toggle="tooltip", data-placement="right", data-offset="0 10px", title=word.english_subcategory) #{word.english_word}
                             else
-                                a(href='/words/' + word.konkani_word._.replace(/ /g, '+'), data-toggle="tooltip", data-placement="right", data-offset="0 10px", title=word.konkani_subcategory._) #{word.konkani_word._}
-                            if word.part_of_speech._ != ""
-                                span &nbsp; (#{word.part_of_speech._}.)
-                            if word.english_subcategory._ && word.konkani_subcategory._
+                                a(href='/words/' + word.konkani_word.replace(/ /g, '+'), data-toggle="tooltip", data-placement="right", data-offset="0 10px", title=word.konkani_subcategory) #{word.konkani_word}
+                            if word.part_of_speech != ""
+                                span &nbsp; (#{word.part_of_speech}.)
+                            if word.english_subcategory && word.konkani_subcategory
                                 div.more-details
-                                    span.category Category: #{word.english_subcategory._}
-                            if word.more_details._ != ""
+                                    span.category Category: #{word.english_subcategory}
+                            if word.more_details != ""
                                 div.more-details
-                                    - var json = JSON.parse(word.more_details._);
+                                    - var json = JSON.parse(word.more_details);
                                     if json.scientific_name
                                         span Scientific name: #[a(href=json.scientific_url) #[span.scientific_name= json.scientific_name]]
                                         br
@@ -109,13 +109,13 @@ block content
                 ol
                     each word in related_words
                         li 
-                            a(href='/words/'+ word.ParentWord._.replace(/ /g, '+')) #{word.ParentWord._}
+                            a(href='/words/'+ word.ParentWord.replace(/ /g, '+')) #{word.ParentWord}
         
         div.flex-inner-w25
             each cat in same_subcat_words
                 if cat[0]
-                    span.highlight #{cat[0].english_subcategory._}
-                    span.highlight #{cat[0].konkani_subcategory._}
+                    span.highlight #{cat[0].english_subcategory}
+                    span.highlight #{cat[0].konkani_subcategory}
                 div.mt-3
                     ol
                         each word in cat
@@ -123,9 +123,9 @@ block content
                                 - var is_konkani = true; if (query.search(/^([x00-\xFF]+)/) != -1) { is_konkani = false; }
                                 if is_konkani
                                     if word.konkani_word
-                                        if word.konkani_word._
-                                            a(href='/words/'+ word.konkani_word._.replace(/ /g, '+')) #{word.konkani_word._}
+                                        if word.konkani_word
+                                            a(href='/words/'+ word.konkani_word.replace(/ /g, '+')) #{word.konkani_word}
                                 else
                                     if word.english_word
-                                        if word.english_word._
-                                            a(href='/words/'+ word.english_word._.replace(/ /g, '+')) #{word.english_word._}
+                                        if word.english_word
+                                            a(href='/words/'+ word.english_word.replace(/ /g, '+')) #{word.english_word}

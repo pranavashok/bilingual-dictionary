@@ -1,5 +1,6 @@
 {
   "name": "bilingual-dictionary",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/pranavashok/bilingual-dictionary.git"
@@ -18,7 +19,7 @@
   "author": "Pranav Ashok",
   "license": "ISC",
   "dependencies": {
-    "azure-storage": "^2.10.5",
+    "@azure/data-tables": "^13.2.2",
     "body-parser": "^1.20.1",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
@@ -26,6 +27,6 @@
     "node-datetime": "^2.1.2",
     "nodemailer": "^6.8.0",
     "pug": "^3.0.2",
-    "rollbar": "^2.25.2"
+    "rollbar": "^2.26.2"
   }
 }

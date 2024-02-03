@@ -1,6 +1,6 @@
 FROM node:15.7-alpine
 
-MAINTAINER Pranav Ashok <pranavashok@gmail.com>
+LABEL org.opencontainers.image.authors="Pranav Ashok <pranavashok@gmail.com>"
 
 RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
 
