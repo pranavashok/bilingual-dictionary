@@ -1,58 +1,63 @@
 import dotenv from "dotenv";
 dotenv.config({ path: "config.env" });
 
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 const app = express();
 
 import path from "path";
 import cors from "cors";
 
-import Rollbar from "rollbar";
+import Rollbar, { LogArgument } from "rollbar";
 
 // For mailing
 import nodemailer from "nodemailer";
-import dateTime from "node-datetime";
 import bodyParser from "body-parser";
 
 import {
   TableClient,
   TableServiceClient,
   AzureNamedKeyCredential,
+  TableEntity,
 } from "@azure/data-tables";
 
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import { Config, CustomRequest, SuggestionBody, Entity, QueryOptions } from "./types";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Validate required environment variables
 const requiredEnvVars = [
-  'AZURE_STORAGE_ACCOUNT',
-  'AZURE_STORAGE_ACCESS_KEY',
-  'AZURE_STORAGE_CONNECTION_STRING',
-  'POST_CLIENT_ITEM_ACCESS_TOKEN',
-  'POST_SERVER_ITEM_ACCESS_TOKEN'
+  "AZURE_STORAGE_ACCOUNT",
+  "AZURE_STORAGE_ACCESS_KEY",
+  "AZURE_STORAGE_CONNECTION_STRING",
+  "POST_CLIENT_ITEM_ACCESS_TOKEN",
+  "POST_SERVER_ITEM_ACCESS_TOKEN",
 ];
 
-const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+const missingEnvVars = requiredEnvVars.filter(
+  (varName) => !process.env[varName]
+);
+
 if (missingEnvVars.length > 0) {
-  console.error('Error: Missing required environment variables:');
-  console.error(missingEnvVars.join(', '));
-  console.error('Please create a config.env file with these variables');
+  console.error("Error: Missing required environment variables:");
+  console.error(missingEnvVars.join(", "));
+  console.error("Please create a config.env file with these variables");
   process.exit(1);
 }
 
 // TODO: express-recaptcha
 
-const config = {
-  storageAccount: process.env.AZURE_STORAGE_ACCOUNT,
-  storageAccessKey: process.env.AZURE_STORAGE_ACCESS_KEY,
-  connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
+
+const config: Config = {
+  storageAccount: process.env.AZURE_STORAGE_ACCOUNT!,
+  storageAccessKey: process.env.AZURE_STORAGE_ACCESS_KEY!,
+  connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING!,
   // Rollbar
-  postClientItem: process.env.POST_CLIENT_ITEM_ACCESS_TOKEN,
-  postServerItem: process.env.POST_SERVER_ITEM_ACCESS_TOKEN,
-  env: process.env.NODE_ENV,
+  postClientItem: process.env.POST_CLIENT_ITEM_ACCESS_TOKEN!,
+  postServerItem: process.env.POST_SERVER_ITEM_ACCESS_TOKEN!,
+  env: process.env.NODE_ENV || "development",
   db1: "dictengtokon",
   db2: "dictkontoeng",
 };
@@ -76,6 +81,7 @@ app.set("view engine", "pug");
 app.use(cors());
 app.options("*", cors());
 
+// Serve static files from the local dist/public directory
 app.use(express.static(path.join(__dirname, "public")));
 
 // var robots = require('express-robots-txt');
@@ -85,7 +91,7 @@ app.locals.pretty = true;
 app.locals.env = config.env;
 app.locals.postClientItem = config.postClientItem;
 
-app.use(function (req, res, next) {
+app.use(function (req: CustomRequest, res: Response, next: NextFunction) {
   res.locals.user = req.user;
   next();
 });
@@ -98,10 +104,11 @@ var rollbar = new Rollbar({
   payload: {
     environment: config.env,
   },
-  verbose: true, // This will now log to console.log, as well as Rollbar
+  verbose: config.env === "development", // Only verbose in development
+  enabled: config.env !== "development" // Only enable in non-development environments
 });
 
-app.use(function (req, res, next) {
+app.use(function (req: Request, res: Response, next: NextFunction) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
     "Access-Control-Allow-Headers",
@@ -113,7 +120,7 @@ app.use(function (req, res, next) {
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
-app.get("/", function (req, res) {
+app.get("/", function (req: Request, res: Response) {
   res.render("index", {
     title: "Home - South Konkani-English Dictionary",
     heading: "A Southern Konkani Vocabulary Collection",
@@ -121,7 +128,7 @@ app.get("/", function (req, res) {
   });
 });
 
-app.get("/about", function (req, res) {
+app.get("/about", function (req: Request, res: Response) {
   res.render("about", {
     title: "About - South Konkani-English Dictionary",
     heading: "A Southern Konkani Vocabulary Collection",
@@ -129,7 +136,7 @@ app.get("/about", function (req, res) {
   });
 });
 
-app.get("/contact", function (req, res) {
+app.get("/contact", function (req: Request, res: Response) {
   res.render("contact", {
     title: "Contact - South Konkani-English Dictionary",
     heading: "A Southern Konkani Vocabulary Collection",
@@ -137,7 +144,7 @@ app.get("/contact", function (req, res) {
   });
 });
 
-app.get("/suggest", function (req, res) {
+app.get("/suggest", function (req: Request, res: Response) {
   res.render("suggest", {
     title: "Suggest - South Konkani-English Dictionary",
     heading: "A Southern Konkani Vocabulary Collection",
@@ -145,7 +152,7 @@ app.get("/suggest", function (req, res) {
   });
 });
 
-app.get("/contents", function (req, res) {
+app.get("/contents", function (req: Request, res: Response) {
   res.render("contents", {
     title: "Contents - South Konkani-English Dictionary",
     heading: "A Southern Konkani Vocabulary Collection",
@@ -153,13 +160,26 @@ app.get("/contents", function (req, res) {
   });
 });
 
-app.post("/submit-suggestion", function (req, res) {
+function formatDateTime(date: Date): string {
+  const pad = (num: number) => String(num).padStart(2, '0');
+  
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  const seconds = pad(date.getSeconds());
+  
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+app.post("/submit-suggestion", function (req: Request, res: Response) {
   // create reusable transporter object using the default SMTP transport
   let transporter = nodemailer.createTransport({
-    service: "Zoho",
-    host: this.service,
+    host: "smtp.zoho.com",
     port: 587,
-    secureConnection: false, // use SSL
+    secure: false, // use TLS
     auth: {
       user: process.env.SMTP_USERNAME,
       pass: process.env.SMTP_PASSWORD,
@@ -169,12 +189,12 @@ app.post("/submit-suggestion", function (req, res) {
     },
   });
 
-  var dt = dateTime.create();
-  var formatted = dt.format("Y-m-d H:M:S");
+  var formatted = formatDateTime(new Date());
 
-  var name = req.body.name;
-  var email = req.body.email;
-  var suggestion = req.body.suggestion;
+  const body = req.body as SuggestionBody;
+  var name = body.name;
+  var email = body.email;
+  var suggestion = body.suggestion;
 
   // setup e-mail data with unicode symbols
   var mailOptions = {
@@ -215,17 +235,24 @@ app.post("/submit-suggestion", function (req, res) {
   });
 });
 
-async function retrieveEntity(table, partitionKey, rowKey) {
+async function retrieveEntity(
+  table: string,
+  partitionKey: string,
+  rowKey: string
+): Promise<Entity> {
   const tableClient = new TableClient(
     tableServiceClient.url,
     table,
     credential
   );
   const entity = await tableClient.getEntity(partitionKey, rowKey);
-  return entity;
+  return entity as Entity;
 }
 
-async function queryEntities(table, query) {
+async function queryEntities(
+  table: string,
+  query: QueryOptions
+): Promise<Entity[]> {
   const tableClient = new TableClient(
     tableServiceClient.url,
     table,
@@ -234,24 +261,36 @@ async function queryEntities(table, query) {
   const entities = tableClient.listEntities({
     queryOptions: {
       select: query.select,
-      top: query.top,
       filter: query.filter,
     },
   });
-  const result = [];
+
+  const result: Entity[] = [];
+  
+  // Manually limit the number of results based on query.top
   for await (const entity of entities) {
-    result.push(entity);
+    result.push(entity as Entity);
+    
+    // Check if we've reached the desired limit
+    if (query.top && result.length >= query.top) {
+      break;
+    }
   }
+  
   return result;
 }
 
-async function insertEntity(table, entity) {
-  const tableClient = tableServiceClient.getTableClient(table);
+async function insertEntity(table: string, entity: Entity): Promise<void> {
+  const tableClient = new TableClient(
+    tableServiceClient.url,
+    table,
+    credential
+  );
   await tableClient.createEntity(entity);
 }
 
-function groupBySubcat(entries) {
-  const groups = new Map();
+function groupBySubcat(entries: Entity[]): Entity[][] {
+  const groups = new Map<string, Entity[]>();
 
   entries.forEach((row) => {
     if (!row.hasOwnProperty("english_subcategory")) {
@@ -261,7 +300,7 @@ function groupBySubcat(entries) {
     const key = row.english_subcategory;
 
     if (groups.has(key)) {
-      groups.get(key).push(row);
+      groups.get(key)!.push(row);
     } else {
       groups.set(key, [row]);
     }
@@ -271,9 +310,13 @@ function groupBySubcat(entries) {
   return Array.from(groups.values());
 }
 
-function removeDuplicateByWordAndCategory(req, result, column) {
-  const unique = new Map();
-  const keepRows = [];
+function removeDuplicateByWordAndCategory(
+  req: Request,
+  result: Entity[],
+  column: string
+): Entity[] {
+  const unique = new Map<string, string | null>();
+  const keepRows: Entity[] = [];
 
   result.forEach(function (row) {
     if (!row.hasOwnProperty(column)) {
@@ -318,7 +361,11 @@ function removeDuplicateByWordAndCategory(req, result, column) {
   return keepRows;
 }
 
-function removeNonsearchable(entries, column, num) {
+function removeNonsearchable(
+  entries: Entity[],
+  column: string,
+  num: number
+): Entity[] {
   const keepRows = entries.filter(
     (row) =>
       !row.hasOwnProperty("searchable") ||
@@ -327,7 +374,7 @@ function removeNonsearchable(entries, column, num) {
   return keepRows;
 }
 
-function combineMoreDetails(m1, m2) {
+function combineMoreDetails(m1: string, m2: string): string | null {
   if (m1 === "") {
     return m2;
   }
@@ -336,18 +383,21 @@ function combineMoreDetails(m1, m2) {
   }
 
   try {
-    m1 = JSON.parse(m1);
-    m2 = JSON.parse(m2);
+    const m1Obj = JSON.parse(m1);
+    const m2Obj = JSON.parse(m2);
+    return JSON.stringify(Object.assign({}, m1Obj, m2Obj));
   } catch (ex) {
     console.error("Exception in combining more_details: ", ex);
     return null; // or handle this case differently
   }
-
-  return JSON.stringify(Object.assign({}, m1, m2));
 }
 
-function uniqueEntriesByColumn(req, entries, column) {
-  const uniqueWords = new Set();
+function uniqueEntriesByColumn(
+  req: Request,
+  entries: Entity[],
+  column: string
+): Entity[] {
+  const uniqueWords = new Set<string>();
   const uniqueEntries = entries.filter((row) => {
     if (!row.hasOwnProperty(column)) {
       rollbar.error(
@@ -367,8 +417,8 @@ function uniqueEntriesByColumn(req, entries, column) {
   return uniqueEntries;
 }
 
-function uniqueWordsByColumn(entries, column) {
-  const uniqueWords = new Set();
+function uniqueWordsByColumn(entries: Entity[], column: string): string[] {
+  const uniqueWords = new Set<string>();
   entries.forEach(function (row) {
     if (row[column]) {
       uniqueWords.add(row[column]);
@@ -377,7 +427,7 @@ function uniqueWordsByColumn(entries, column) {
   return Array.from(uniqueWords);
 }
 
-function sortEntriesByColumn(entries, column) {
+function sortEntriesByColumn(entries: Entity[], column: string): Entity[] {
   return entries.sort((e1, e2) => {
     if (e1.hasOwnProperty(column) && e2.hasOwnProperty(column)) {
       return e1[column] - e2[column];
@@ -387,7 +437,7 @@ function sortEntriesByColumn(entries, column) {
   });
 }
 
-function nextWord(word) {
+function nextWord(word: string): string {
   if (word === "") {
     return word;
   }
@@ -398,21 +448,21 @@ function nextWord(word) {
   return word_upper;
 }
 
-app.get("/searching", async function (req, res) {
-  const search_param = req.query.search;
+app.get("/searching", async function (req: Request, res: Response) {
+  const search_param = req.query.search as string | undefined;
 
   // Handle empty requests
-  if (search_param === "") {
+  if (!search_param || search_param === "") {
     res.send("");
     return;
   }
 
   // If typing in English, then
-  let primary_column,
-    secondary_column,
-    primary_table,
-    secondary_table,
-    suggest_table;
+  let primary_column: string,
+    secondary_column: string,
+    primary_table: string,
+    secondary_table: string,
+    suggest_table: string;
   if (search_param.search(/^([\x00-\xFF]+)/) != -1) {
     primary_column = "english_word";
     secondary_column = "konkani_word";
@@ -429,7 +479,7 @@ app.get("/searching", async function (req, res) {
 
   var data = "";
 
-  const startswith_query = {
+  const startswith_query: QueryOptions = {
     select: [primary_column, "searchable"],
     top: 30,
     filter: `PartitionKey ge '${search_param.toLowerCase()}' and PartitionKey lt '${nextWord(
@@ -437,7 +487,7 @@ app.get("/searching", async function (req, res) {
     ).toLowerCase()}'`,
   };
 
-  const containingwords_query = {
+  const containingwords_query: QueryOptions = {
     select: ["RowKey", "ParentWord", "StrippedWord"],
     top: 30,
     filter: `PartitionKey ge '${search_param.toLowerCase()}' and PartitionKey lt '${nextWord(
@@ -468,24 +518,24 @@ app.get("/searching", async function (req, res) {
 
     res.send(data);
   } catch (error) {
-    rollbar.error("Error occured when querying entities", error, req);
+    rollbar.error("Error occured when querying entities", error as LogArgument, req);
     res.send("An error occurred. Please try again later.");
   }
 
   // Log searches
   if (search_param.length >= 3 && config.env === "production") {
-    var task = {
-      PartitionKey: { _: primary_column, $: "Edm.String" },
-      RowKey: { _: String(Date.now()), $: "Edm.String" },
-      query: { _: search_param, $: "Edm.String" },
-      complete: { _: false, $: "Edm.Boolean" },
+    var task: Entity = {
+      partitionKey: primary_column,
+      rowKey: String(Date.now()),
+      query: search_param,
+      complete: false,
     };
     try {
       await insertEntity("searchlog", task);
     } catch (error) {
       rollbar.error(
         "Error occured when inserting entity into searchlog",
-        error,
+        error as LogArgument,
         { entity: task },
         req
       );
@@ -493,7 +543,7 @@ app.get("/searching", async function (req, res) {
   }
 });
 
-function createTable(result, column, header) {
+function createTable(result: Entity[], column: string, header: string): string {
   let data = '<table class="results-table">';
   if (result.length > 0) {
     data += `<thead><tr><td>${header}</td></tr></thead>`;
@@ -514,7 +564,13 @@ function createTable(result, column, header) {
   return data;
 }
 
-function renderWordPage(res, word, words, related_words, same_subcat_words) {
+function renderWordPage(
+  res: Response,
+  word: string,
+  words: Entity[],
+  related_words: Entity[],
+  same_subcat_words: Entity[][]
+): void {
   res.render(
     "words",
     {
@@ -534,9 +590,13 @@ function renderWordPage(res, word, words, related_words, same_subcat_words) {
   );
 }
 
-async function get_word(req, res, next) {
+async function get_word(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
   var discover = false;
-  let word;
+  let word: string;
   if (res.locals.word) {
     console.info("Random word ", res.locals.word, " chosen");
     word = res.locals.word;
@@ -548,11 +608,11 @@ async function get_word(req, res, next) {
   word = word.replace(/\+/g, " ");
 
   // If typing in English, then
-  let primary_column,
-    secondary_column,
-    primary_table,
-    secondary_table,
-    suggest_table;
+  let primary_column: string,
+    secondary_column: string,
+    primary_table: string,
+    secondary_table: string,
+    suggest_table: string;
   if (word.search(/^([\x00-\xFF]+)/) != -1) {
     primary_column = "english_word";
     secondary_column = "konkani_word";
@@ -567,7 +627,7 @@ async function get_word(req, res, next) {
     suggest_table = "suggestkon";
   }
 
-  var exact_word_query = {
+  var exact_word_query: QueryOptions = {
     select: [
       secondary_column,
       "part_of_speech",
@@ -580,7 +640,7 @@ async function get_word(req, res, next) {
     ).toLowerCase()}' and ${primary_column} eq '${word.toLowerCase()}'`,
   };
 
-  var containingwords_query = {
+  var containingwords_query: QueryOptions = {
     select: ["RowKey", "ParentWord", "StrippedWord"],
     filter: `PartitionKey eq '${word.toLowerCase()}'`,
   };
@@ -599,7 +659,7 @@ async function get_word(req, res, next) {
       );
 
       // Pick entries which contain query word in any way
-      var related_entries = [];
+      var related_entries: Entity[] = [];
       const containingwords_result = await queryEntities(
         suggest_table,
         containingwords_query
@@ -614,7 +674,7 @@ async function get_word(req, res, next) {
         related_entries = related_entries.filter((x) => x.ParentWord !== word);
       }
 
-      let constraint_string = [];
+      let constraint_string: string[] = [];
       main_result.forEach(function (row) {
         constraint_string.push(
           `english_subcategory eq '${row.english_subcategory.replace(
@@ -624,7 +684,7 @@ async function get_word(req, res, next) {
         );
       });
 
-      const samesubcat_query = {
+      const samesubcat_query: QueryOptions = {
         select: [
           primary_column,
           "english_subcategory",
@@ -634,8 +694,7 @@ async function get_word(req, res, next) {
         filter: constraint_string.join(" or "),
       };
 
-      var samesubcat_entries = [];
-      var all_subcat_entries = [];
+      var all_subcat_entries: Entity[][] = [];
       const samesubcat_result = await queryEntities(
         primary_table,
         samesubcat_query
@@ -653,9 +712,9 @@ async function get_word(req, res, next) {
               );
             }
           });
-          list = uniqueEntriesByColumn(req, list, primary_column);
-          all_subcat_entries[index] = sortEntriesByColumn(list, "weight");
-        }, all_subcat_entries);
+          const uniqueList = uniqueEntriesByColumn(req, list, primary_column);
+          all_subcat_entries[index] = sortEntriesByColumn(uniqueList, "weight");
+        });
       }
 
       renderWordPage(
@@ -669,14 +728,16 @@ async function get_word(req, res, next) {
       renderWordPage(res, word, [], [], []);
     }
   } catch (error) {
-    rollbar.error("get_word(): Error occured", error, req);
+    rollbar.error("get_word(): Error occured", error as LogArgument, req);
     renderWordPage(res, word, [], [], []);
   }
 }
 
-app.get("/words/:word", get_word);
+app.get("/words/:word", (req: Request, res: Response, next: NextFunction) => {
+  get_word(req, res, next).catch(next);
+});
 
-var contentList = [
+var contentList: string[] = [
   "Living things",
   "Animal kingdom",
   "Animals",
@@ -1233,140 +1294,145 @@ var contentList = [
   "Extra vocabulary",
 ];
 
-app.get("/discover", async function (req, res, next) {
-  try {
-    const randomCategory =
-      contentList[Math.floor(Math.random() * contentList.length)];
+app.get(
+  "/discover",
+  async function (req: Request, res: Response, next: NextFunction) {
+    try {
+      const randomCategory =
+        contentList[Math.floor(Math.random() * contentList.length)];
 
-    // const randomQuery = new azure.TableQuery()
-    //   .select(["PartitionKey", "RowKey"])
-    //   .where("english_subcategory eq ?", randomCategory);
-    const randomQuery = {
-      select: ["PartitionKey", "RowKey"],
-      filter: `english_subcategory eq '${randomCategory}'`,
-    };
+      const randomQuery: QueryOptions = {
+        select: ["PartitionKey", "RowKey"],
+        filter: `english_subcategory eq '${randomCategory}'`,
+      };
 
-    const result = await queryEntities("dictkontoeng", randomQuery);
+      const result = await queryEntities("dictkontoeng", randomQuery);
 
-    if (result.length > 0) {
-      const selectedEntry = result[Math.floor(Math.random() * result.length)];
-      if (!selectedEntry.hasOwnProperty("partitionKey")) {
-        rollbar.error(
-          "Selected random entry, but entry did not have PartitionKey",
-          { entry: selectedEntry, category: randomCategory },
-          req
-        );
-        res.redirect("/");
-      } else {
-        const entity = await retrieveEntity(
-          "dictkontoeng",
-          selectedEntry["partitionKey"],
-          selectedEntry["rowKey"]
-        );
-
-        console.info("Fetching", entity["konkani_word"]);
-        res.redirect("/words/" + entity["konkani_word"]);
-      }
-    } else {
-      rollbar.warn(
-        "Possibly picked an empty category for discover",
-        { subcategory: randomCategory },
-        req
-      );
-      res.redirect("/discover");
-    }
-  } catch (error) {
-    rollbar.error(
-      "Could not execute randomQuery",
-      error,
-      { random_query: randomQuery },
-      req
-    );
-    res.redirect("/");
-  }
-});
-
-app.get("/category/:category", async function (req, res, next) {
-  try {
-    const category = req.params.category.replace(/\+/g, " ");
-
-    let primary_column,
-      secondary_column,
-      primary_table,
-      secondary_table,
-      primary_subcategory,
-      secondary_subcategory;
-    if (/^([\x00-\xFF]+)/.test(category)) {
-      primary_column = "english_word";
-      secondary_column = "konkani_word";
-      primary_table = config.db1;
-      secondary_table = config.db2;
-      primary_subcategory = "english_subcategory";
-      secondary_subcategory = "konkani_subcategory";
-    } else {
-      primary_column = "konkani_word";
-      secondary_column = "english_word";
-      primary_table = config.db2;
-      secondary_table = config.db1;
-      primary_subcategory = "konkani_subcategory";
-      secondary_subcategory = "english_subcategory";
-    }
-
-    // TODO: Update browse_count
-
-    // TODO: Related words, same subcategory words
-
-    const samesubcat_query = {
-      select: [
-        primary_column,
-        secondary_subcategory,
-        primary_subcategory,
-        "weight",
-      ],
-      filter: `${primary_subcategory} eq '${category}'`,
-    };
-
-    const result = await queryEntities(primary_table, samesubcat_query);
-
-    let samesubcat_entries = [];
-    if (result.length > 0) {
-      result.forEach(function (row) {
-        if (!row.hasOwnProperty(primary_column)) {
+      if (result.length > 0) {
+        const selectedEntry = result[Math.floor(Math.random() * result.length)];
+        if (!selectedEntry.hasOwnProperty("partitionKey")) {
           rollbar.error(
-            "uniqueEntriesByColumn() failed 1",
-            { result_entries: result, primary_column: primary_column },
+            "Selected random entry, but entry did not have PartitionKey",
+            { entry: selectedEntry, category: randomCategory },
             req
           );
+          res.redirect("/");
+        } else {
+          const entity = await retrieveEntity(
+            "dictkontoeng",
+            selectedEntry.partitionKey,
+            selectedEntry.rowKey
+          );
+
+          console.info("Fetching", entity["konkani_word"]);
+          res.redirect("/words/" + entity["konkani_word"]);
         }
-      });
-      samesubcat_entries = uniqueEntriesByColumn(
-        req,
-        result,
-        primary_column
+      } else {
+        rollbar.warn(
+          "Possibly picked an empty category for discover",
+          { subcategory: randomCategory },
+          req
+        );
+        res.redirect("/discover");
+      }
+    } catch (error) {
+      const randomCategory = contentList[Math.floor(Math.random() * contentList.length)];
+      rollbar.error(
+        "Could not execute randomQuery",
+        error as LogArgument,
+        { random_query: { select: ["PartitionKey", "RowKey"], filter: `english_subcategory eq '${randomCategory}'` } },
+        req
       );
-      samesubcat_entries = sortEntriesByColumn(samesubcat_entries, "weight");
-      // TODO: Sort words by konkani
+      res.redirect("/");
     }
-
-    res.render("subcategory", {
-      title: category + " in Konkani - South Konkani-English Dictionary",
-      heading: "A Southern Konkani Vocabulary Collection",
-      heading_konkani: "दक्षिण कोंकणी उतरावळि",
-      same_subcat_words: samesubcat_entries,
-    });
-  } catch (error) {
-    rollbar.error(
-      "Error occurred when running samesubcat_query",
-      error,
-      { param: category },
-      req
-    );
-    next(error);
   }
-});
+);
 
-app.get("*", function (req, res) {
-  rollbar.warning("A user tried to access an unavailable URL", req);
+app.get(
+  "/category/:category",
+  async function (req: Request, res: Response, next: NextFunction) {
+    try {
+      const category = req.params.category.replace(/\+/g, " ");
+
+      let primary_column: string,
+        secondary_column: string,
+        primary_table: string,
+        secondary_table: string,
+        primary_subcategory: string,
+        secondary_subcategory: string;
+      if (/^([\x00-\xFF]+)/.test(category)) {
+        primary_column = "english_word";
+        secondary_column = "konkani_word";
+        primary_table = config.db1;
+        secondary_table = config.db2;
+        primary_subcategory = "english_subcategory";
+        secondary_subcategory = "konkani_subcategory";
+      } else {
+        primary_column = "konkani_word";
+        secondary_column = "english_word";
+        primary_table = config.db2;
+        secondary_table = config.db1;
+        primary_subcategory = "konkani_subcategory";
+        secondary_subcategory = "english_subcategory";
+      }
+
+      // TODO: Update browse_count
+
+      // TODO: Related words, same subcategory words
+
+      const samesubcat_query: QueryOptions = {
+        select: [
+          primary_column,
+          secondary_subcategory,
+          primary_subcategory,
+          "weight",
+        ],
+        filter: `${primary_subcategory} eq '${category}'`,
+      };
+
+      const result = await queryEntities(primary_table, samesubcat_query);
+
+      let samesubcat_entries: Entity[] = [];
+      if (result.length > 0) {
+        result.forEach(function (row) {
+          if (!row.hasOwnProperty(primary_column)) {
+            rollbar.error(
+              "uniqueEntriesByColumn() failed 1",
+              { result_entries: result, primary_column: primary_column },
+              req
+            );
+          }
+        });
+        samesubcat_entries = uniqueEntriesByColumn(req, result, primary_column);
+        samesubcat_entries = sortEntriesByColumn(samesubcat_entries, "weight");
+        // TODO: Sort words by konkani
+      }
+
+      res.render("subcategory", {
+        title: category + " in Konkani - South Konkani-English Dictionary",
+        heading: "A Southern Konkani Vocabulary Collection",
+        heading_konkani: "दक्षिण कोंकणी उतरावळि",
+        same_subcat_words: samesubcat_entries,
+      });
+    } catch (error) {
+      rollbar.error(
+        "Error occurred when running samesubcat_query",
+        error as LogArgument,
+        { param: req.params.category.replace(/\+/g, " ") },
+        req
+      );
+      next(error as Error);
+    }
+  }
+);
+
+app.get("*", function (req: Request, res: Response) {
+  if (config.env === "development") {
+    console.log("A user tried to access an unavailable URL", req.url);
+  }
+  if (config.env !== "development") {
+    rollbar.warning("A user tried to access an unavailable URL", { url: req.url, ip: req.ip });
+  }
   res.redirect("/");
 });
 
@@ -1375,9 +1441,6 @@ app.use(rollbar.errorHandler());
 
 app.listen(app.get("port"), app.get("ipaddress"), function () {
   console.log(
-    "App is running, server is listening on host:port ",
-    app.get("ipaddress"),
-    ":",
-    app.get("port")
+    `App is running in ${config.env} mode on ${app.get("ipaddress")}:${app.get("port")}`
   );
 });

@@ -67,3 +67,5 @@ typings/
 # config
 config.env
 
+# dist
+/dist
