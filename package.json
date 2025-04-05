@@ -17,7 +17,8 @@
     "start": "npm run build && npm run dev",
     "dev": "tsc -w & node --watch dist/index.js",
     "serve": "node dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "heroku-postbuild": "npm run build"
   },
   "author": "Pranav Ashok",
   "license": "ISC",

@@ -1,4 +1,4 @@
-FROM node:15.7-alpine
+FROM node:19-alpine
 
 LABEL org.opencontainers.image.authors="Pranav Ashok <pranavashok@gmail.com>"
 
@@ -8,14 +8,19 @@ WORKDIR /home/node/app
 
 USER node
 
-# Copy application code.
+# Copy package files
 COPY --chown=node:node package*.json ./
 
-# Install dependencies.
+# Install dependencies
 RUN npm install
 
+# Copy application code
 COPY --chown=node:node . .
+
+# Build TypeScript code
+RUN npm run build
 
 EXPOSE 8080
 
-CMD ["node", "index.js"]
+# Use the serve script which runs the compiled JavaScript
+CMD ["npm", "run", "serve"]
