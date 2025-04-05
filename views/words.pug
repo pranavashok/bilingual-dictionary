@@ -4,6 +4,20 @@ block link
     -var selected = 'Discover!';
 
 block content
+    // Add JSON-LD structured data for dictionary entries
+    script(type="application/ld+json").
+        {
+            "@context": "https://schema.org",
+            "@type": "DefinedTerm",
+            "name": "#{query}",
+            "inDefinedTermSet": {
+                "@type": "DefinedTermSet",
+                "name": "South Konkani-English Dictionary"
+            },
+            "description": "#{words.length > 0 ? (words[0].konkani_word ? words[0].konkani_word : words[0].english_word) : ''}",
+            "url": "https://www.konkanivocabulary.in/words/#{query.replace(/ /g, '+')}"
+        }
+
     div#search-container.flex-container
         div.flex-item
             include keyboard.html

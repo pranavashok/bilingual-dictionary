@@ -69,3 +69,6 @@ config.env
 
 # dist
 /dist
+
+# sitemap cache
+sitemap-cache.json

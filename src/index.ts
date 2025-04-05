@@ -22,7 +22,14 @@ import {
 
 import { fileURLToPath } from "url";
 import { dirname } from "path";
-import { Config, CustomRequest, SuggestionBody, Entity, QueryOptions } from "./types";
+import {
+  Config,
+  CustomRequest,
+  SuggestionBody,
+  Entity,
+  QueryOptions,
+} from "./types.js";
+import { generateSitemap, shouldRegenerateSitemap } from "./sitemap.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -48,7 +55,6 @@ if (missingEnvVars.length > 0) {
 }
 
 // TODO: express-recaptcha
-
 
 const config: Config = {
   storageAccount: process.env.AZURE_STORAGE_ACCOUNT!,
@@ -105,7 +111,7 @@ var rollbar = new Rollbar({
     environment: config.env,
   },
   verbose: config.env === "development", // Only verbose in development
-  enabled: config.env !== "development" // Only enable in non-development environments
+  enabled: config.env !== "development", // Only enable in non-development environments
 });
 
 app.use(function (req: Request, res: Response, next: NextFunction) {
@@ -119,6 +125,13 @@ app.use(function (req: Request, res: Response, next: NextFunction) {
 
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+
+// Serve sitemap.xml directly
+app.get("/sitemap.xml", function (req: Request, res: Response) {
+  const sitemapPath = path.join(__dirname, "public", "sitemap.xml");
+  res.header("Content-Type", "application/xml");
+  res.sendFile(sitemapPath);
+});
 
 app.get("/", function (req: Request, res: Response) {
   res.render("index", {
@@ -161,16 +174,16 @@ app.get("/contents", function (req: Request, res: Response) {
 });
 
 function formatDateTime(date: Date): string {
-  const pad = (num: number) => String(num).padStart(2, '0');
-  
+  const pad = (num: number) => String(num).padStart(2, "0");
+
   const year = date.getFullYear();
   const month = pad(date.getMonth() + 1);
   const day = pad(date.getDate());
-  
+
   const hours = pad(date.getHours());
   const minutes = pad(date.getMinutes());
   const seconds = pad(date.getSeconds());
-  
+
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
@@ -266,17 +279,17 @@ async function queryEntities(
   });
 
   const result: Entity[] = [];
-  
+
   // Manually limit the number of results based on query.top
   for await (const entity of entities) {
     result.push(entity as Entity);
-    
+
     // Check if we've reached the desired limit
     if (query.top && result.length >= query.top) {
       break;
     }
   }
-  
+
   return result;
 }
 
@@ -518,7 +531,11 @@ app.get("/searching", async function (req: Request, res: Response) {
 
     res.send(data);
   } catch (error) {
-    rollbar.error("Error occured when querying entities", error as LogArgument, req);
+    rollbar.error(
+      "Error occured when querying entities",
+      error as LogArgument,
+      req
+    );
     res.send("An error occurred. Please try again later.");
   }
 
@@ -1336,11 +1353,17 @@ app.get(
         res.redirect("/discover");
       }
     } catch (error) {
-      const randomCategory = contentList[Math.floor(Math.random() * contentList.length)];
+      const randomCategory =
+        contentList[Math.floor(Math.random() * contentList.length)];
       rollbar.error(
         "Could not execute randomQuery",
         error as LogArgument,
-        { random_query: { select: ["PartitionKey", "RowKey"], filter: `english_subcategory eq '${randomCategory}'` } },
+        {
+          random_query: {
+            select: ["PartitionKey", "RowKey"],
+            filter: `english_subcategory eq '${randomCategory}'`,
+          },
+        },
         req
       );
       res.redirect("/");
@@ -1431,7 +1454,10 @@ app.get("*", function (req: Request, res: Response) {
     console.log("A user tried to access an unavailable URL", req.url);
   }
   if (config.env !== "development") {
-    rollbar.warning("A user tried to access an unavailable URL", { url: req.url, ip: req.ip });
+    rollbar.warning("A user tried to access an unavailable URL", {
+      url: req.url,
+      ip: req.ip,
+    });
   }
   res.redirect("/");
 });
@@ -1441,6 +1467,37 @@ app.use(rollbar.errorHandler());
 
 app.listen(app.get("port"), app.get("ipaddress"), function () {
   console.log(
-    `App is running in ${config.env} mode on ${app.get("ipaddress")}:${app.get("port")}`
+    "Server started at http://" +
+      app.get("ipaddress") +
+      ":" +
+      app.get("port") +
+      "/"
   );
+
+  // Generate sitemap on startup in production only if needed
+  if (config.env === "development") {
+    // Check if sitemap needs regeneration
+    if (shouldRegenerateSitemap()) {
+      console.log("Sitemap needs regeneration, starting process...");
+      generateSitemap().catch((err) => {
+        console.error("Error generating sitemap:", err);
+        rollbar.error("Error generating sitemap", err);
+      });
+    } else {
+      console.log("Sitemap is up to date, skipping generation");
+    }
+
+    // Check weekly if sitemap needs regeneration
+    setInterval(() => {
+      if (shouldRegenerateSitemap()) {
+        console.log("Weekly check: Sitemap needs regeneration");
+        generateSitemap().catch((err) => {
+          console.error("Error regenerating sitemap:", err);
+          rollbar.error("Error regenerating sitemap", err);
+        });
+      } else {
+        console.log("Weekly check: Sitemap is up to date");
+      }
+    }, 7 * 24 * 60 * 60 * 1000); // Weekly
+  }
 });

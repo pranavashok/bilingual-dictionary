@@ -18,7 +18,8 @@
     "dev": "tsc -w & node --watch dist/index.js",
     "serve": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "heroku-postbuild": "npm run build"
+    "heroku-postbuild": "npm run build",
+    "generate-sitemap": "node dist/sitemap.js"
   },
   "author": "Pranav Ashok",
   "license": "ISC",
