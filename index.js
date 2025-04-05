@@ -26,6 +26,23 @@ import { dirname } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// Validate required environment variables
+const requiredEnvVars = [
+  'AZURE_STORAGE_ACCOUNT',
+  'AZURE_STORAGE_ACCESS_KEY',
+  'AZURE_STORAGE_CONNECTION_STRING',
+  'POST_CLIENT_ITEM_ACCESS_TOKEN',
+  'POST_SERVER_ITEM_ACCESS_TOKEN'
+];
+
+const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+if (missingEnvVars.length > 0) {
+  console.error('Error: Missing required environment variables:');
+  console.error(missingEnvVars.join(', '));
+  console.error('Please create a config.env file with these variables');
+  process.exit(1);
+}
+
 // TODO: express-recaptcha
 
 const config = {
@@ -33,8 +50,8 @@ const config = {
   storageAccessKey: process.env.AZURE_STORAGE_ACCESS_KEY,
   connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
   // Rollbar
-  post_client_item: process.env.POST_CLIENT_ITEM_ACCESS_TOKEN,
-  post_server_item: process.env.POST_SERVER_ITEM_ACCESS_TOKEN,
+  postClientItem: process.env.POST_CLIENT_ITEM_ACCESS_TOKEN,
+  postServerItem: process.env.POST_SERVER_ITEM_ACCESS_TOKEN,
   env: process.env.NODE_ENV,
   db1: "dictengtokon",
   db2: "dictkontoeng",
@@ -66,7 +83,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.locals.pretty = true;
 app.locals.env = config.env;
-app.locals.post_client_item = config.post_client_item;
+app.locals.postClientItem = config.postClientItem;
 
 app.use(function (req, res, next) {
   res.locals.user = req.user;
@@ -75,7 +92,7 @@ app.use(function (req, res, next) {
 
 // initialize the rollbar library with your access token
 var rollbar = new Rollbar({
-  accessToken: config.post_server_item,
+  accessToken: config.postServerItem,
   captureUncaught: true,
   captureUnhandledRejections: true,
   payload: {
@@ -233,7 +250,7 @@ async function insertEntity(table, entity) {
   await tableClient.createEntity(entity);
 }
 
-function group_by_subcat(entries) {
+function groupBySubcat(entries) {
   const groups = new Map();
 
   entries.forEach((row) => {
@@ -254,9 +271,9 @@ function group_by_subcat(entries) {
   return Array.from(groups.values());
 }
 
-function remove_duplicate_by_word_and_category(req, result, column) {
+function removeDuplicateByWordAndCategory(req, result, column) {
   const unique = new Map();
-  const keep_rows = [];
+  const keepRows = [];
 
   result.forEach(function (row) {
     if (!row.hasOwnProperty(column)) {
@@ -273,44 +290,44 @@ function remove_duplicate_by_word_and_category(req, result, column) {
 
     if (!unique.has(word) || unique.get(word) !== category) {
       unique.set(word, category);
-      keep_rows.push(row);
+      keepRows.push(row);
     } else {
-      const index = keep_rows.findIndex(
+      const index = keepRows.findIndex(
         (item) => item[column] === word && item.english_subcategory === category
       );
 
       if (
         index !== -1 &&
         row.part_of_speech &&
-        keep_rows[index].part_of_speech &&
-        row.part_of_speech === keep_rows[index].part_of_speech &&
+        keepRows[index].part_of_speech &&
+        row.part_of_speech === keepRows[index].part_of_speech &&
         row.more_details &&
-        keep_rows[index].more_details &&
-        row.more_details !== keep_rows[index].more_details
+        keepRows[index].more_details &&
+        row.more_details !== keepRows[index].more_details
       ) {
-        keep_rows[index].more_details = combine_more_details(
+        keepRows[index].more_details = combineMoreDetails(
           row.more_details,
-          keep_rows[index].more_details
+          keepRows[index].more_details
         );
       } else {
-        keep_rows.push(row);
+        keepRows.push(row);
       }
     }
   });
 
-  return keep_rows;
+  return keepRows;
 }
 
-function remove_nonsearchable(entries, column, num) {
-  const keep_rows = entries.filter(
+function removeNonsearchable(entries, column, num) {
+  const keepRows = entries.filter(
     (row) =>
       !row.hasOwnProperty("searchable") ||
       (row.searchable !== num && row.searchable !== String(num))
   );
-  return keep_rows;
+  return keepRows;
 }
 
-function combine_more_details(m1, m2) {
+function combineMoreDetails(m1, m2) {
   if (m1 === "") {
     return m2;
   }
@@ -329,38 +346,38 @@ function combine_more_details(m1, m2) {
   return JSON.stringify(Object.assign({}, m1, m2));
 }
 
-function unique_entries_by_column(req, entries, column) {
-  const unique_words = new Set();
-  const unique_entries = entries.filter((row) => {
+function uniqueEntriesByColumn(req, entries, column) {
+  const uniqueWords = new Set();
+  const uniqueEntries = entries.filter((row) => {
     if (!row.hasOwnProperty(column)) {
       rollbar.error(
-        "unique_entries_by_column() failed 2",
+        "uniqueEntriesByColumn() failed 2",
         { entries: entries, column: column },
         req
       );
       return false;
     }
     const word = row[column];
-    if (!unique_words.has(word)) {
-      unique_words.add(word);
+    if (!uniqueWords.has(word)) {
+      uniqueWords.add(word);
       return true;
     }
     return false;
   });
-  return unique_entries;
+  return uniqueEntries;
 }
 
-function unique_words_by_column(entries, column) {
-  const unique_words = new Set();
+function uniqueWordsByColumn(entries, column) {
+  const uniqueWords = new Set();
   entries.forEach(function (row) {
     if (row[column]) {
-      unique_words.add(row[column]);
+      uniqueWords.add(row[column]);
     }
   });
-  return Array.from(unique_words);
+  return Array.from(uniqueWords);
 }
 
-function sort_entries_by_column(entries, column) {
+function sortEntriesByColumn(entries, column) {
   return entries.sort((e1, e2) => {
     if (e1.hasOwnProperty(column) && e2.hasOwnProperty(column)) {
       return e1[column] - e2[column];
@@ -370,7 +387,7 @@ function sort_entries_by_column(entries, column) {
   });
 }
 
-function next_word(word) {
+function nextWord(word) {
   if (word === "") {
     return word;
   }
@@ -415,7 +432,7 @@ app.get("/searching", async function (req, res) {
   const startswith_query = {
     select: [primary_column, "searchable"],
     top: 30,
-    filter: `PartitionKey ge '${search_param.toLowerCase()}' and PartitionKey lt '${next_word(
+    filter: `PartitionKey ge '${search_param.toLowerCase()}' and PartitionKey lt '${nextWord(
       search_param
     ).toLowerCase()}'`,
   };
@@ -423,7 +440,7 @@ app.get("/searching", async function (req, res) {
   const containingwords_query = {
     select: ["RowKey", "ParentWord", "StrippedWord"],
     top: 30,
-    filter: `PartitionKey ge '${search_param.toLowerCase()}' and PartitionKey lt '${next_word(
+    filter: `PartitionKey ge '${search_param.toLowerCase()}' and PartitionKey lt '${nextWord(
       search_param
     ).toLowerCase()}'`,
   };
@@ -481,8 +498,8 @@ function createTable(result, column, header) {
   if (result.length > 0) {
     data += `<thead><tr><td>${header}</td></tr></thead>`;
     data += "<tbody>";
-    const searchable_entries = remove_nonsearchable(result, column, 0);
-    const unique_words = unique_words_by_column(searchable_entries, column);
+    const searchable_entries = removeNonsearchable(result, column, 0);
+    const unique_words = uniqueWordsByColumn(searchable_entries, column);
     unique_words.forEach(function (word) {
       data += `<tr><td><a href="/words/${word.replace(
         / /g,
@@ -558,7 +575,7 @@ async function get_word(req, res, next) {
       "konkani_subcategory",
       "more_details",
     ],
-    filter: `PartitionKey ge '${word.toLowerCase()}' and PartitionKey lt '${next_word(
+    filter: `PartitionKey ge '${word.toLowerCase()}' and PartitionKey lt '${nextWord(
       word
     ).toLowerCase()}' and ${primary_column} eq '${word.toLowerCase()}'`,
   };
@@ -575,7 +592,7 @@ async function get_word(req, res, next) {
     );
     if (exact_word_result.length > 0) {
       // Remove duplicates
-      var main_result = remove_duplicate_by_word_and_category(
+      var main_result = removeDuplicateByWordAndCategory(
         req,
         exact_word_result,
         secondary_column
@@ -589,7 +606,7 @@ async function get_word(req, res, next) {
       );
 
       if (containingwords_result.length > 0) {
-        related_entries = unique_entries_by_column(
+        related_entries = uniqueEntriesByColumn(
           req,
           containingwords_result,
           "ParentWord"
@@ -625,19 +642,19 @@ async function get_word(req, res, next) {
       );
 
       if (samesubcat_result.length > 0) {
-        all_subcat_entries = group_by_subcat(samesubcat_result);
+        all_subcat_entries = groupBySubcat(samesubcat_result);
         all_subcat_entries.forEach(function (list, index) {
           list.forEach(function (row) {
             if (!row.hasOwnProperty(primary_column)) {
               rollbar.error(
-                "unique_entries_by_column() failed 3",
+                "uniqueEntriesByColumn() failed 3",
                 { list: list, primary_column: primary_column },
                 req
               );
             }
           });
-          list = unique_entries_by_column(req, list, primary_column);
-          all_subcat_entries[index] = sort_entries_by_column(list, "weight");
+          list = uniqueEntriesByColumn(req, list, primary_column);
+          all_subcat_entries[index] = sortEntriesByColumn(list, "weight");
         }, all_subcat_entries);
       }
 
@@ -1316,18 +1333,18 @@ app.get("/category/:category", async function (req, res, next) {
       result.forEach(function (row) {
         if (!row.hasOwnProperty(primary_column)) {
           rollbar.error(
-            "unique_entries_by_column() failed 1",
+            "uniqueEntriesByColumn() failed 1",
             { result_entries: result, primary_column: primary_column },
             req
           );
         }
       });
-      samesubcat_entries = unique_entries_by_column(
+      samesubcat_entries = uniqueEntriesByColumn(
         req,
         result,
         primary_column
       );
-      samesubcat_entries = sort_entries_by_column(samesubcat_entries, "weight");
+      samesubcat_entries = sortEntriesByColumn(samesubcat_entries, "weight");
       // TODO: Sort words by konkani
     }
 
