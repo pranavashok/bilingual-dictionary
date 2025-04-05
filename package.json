@@ -7,8 +7,8 @@
   },
   "version": "1.1.0",
   "engines": {
-    "node": "19.x",
-    "npm": "9.x"
+    "node": "20.x",
+    "npm": "10.x"
   },
   "description": "konkani <-> english dictionary",
   "main": "dist/index.js",
@@ -35,8 +35,8 @@
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
-    "@types/node": "^20.11.30",
-    "@types/nodemailer": "^6.4.14",
-    "typescript": "^5.4.3"
+    "@types/node": "^20.17.30",
+    "@types/nodemailer": "^6.4.17",
+    "typescript": "^5.8.3"
   }
 }
